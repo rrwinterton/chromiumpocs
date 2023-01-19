@@ -1,0 +1,27 @@
+// Copyright 2021 The Chromium Authors
+// Use of this source code is governed by a BSD-style license that can be
+// found in the LICENSE file.
+
+module device.mojom;
+
+enum DeviceServiceType {
+  kComputeCapacity,
+  kVPU,
+};
+
+// This interface is used to get the service of the device from
+// DeviceServiceService.
+interface DeviceServiceProvider {
+  // Associates an interface to the service provider. The initial service
+  // will then be returned.
+  AddListenerAndGetCurrentService(
+    pending_remote<DeviceServiceProviderClient> client)
+      => (DeviceServiceType service);
+};
+
+// Interface that client of the DeviceServiceProvider interface must implement
+// to observe service changes.
+interface DeviceServiceProviderClient {
+  // Interface used to notify service changes.
+  OnServiceChanged(DeviceServiceType service);
+};

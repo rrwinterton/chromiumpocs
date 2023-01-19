@@ -1,0 +1,16 @@
+# Copyright 2021 The Chromium Authors
+# Use of this source code is governed by a BSD-style license that can be
+# found in the LICENSE file.
+
+import("//third_party/blink/renderer/modules/modules.gni")
+
+blink_modules_sources("device_service") {
+  sources = [
+    "device_service.cc",
+    "device_service.h",
+    "navigator_device_service.cc",
+    "navigator_device_service.h",
+  ]
+
+  deps = [ "//services/device/public/mojom" ]
+}
