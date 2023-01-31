@@ -84,6 +84,8 @@ xcopy "%srcpath%\src\third_party\blink\renderer\modules\event_target_modules_nam
 echo "third_party\blink\renderer\platform\scheduler\common\"
 xcopy "%srcpath%\src\third_party\blink\renderer\platform\scheduler\common\thread_load_tracker.cc" "%dstpath%\src\third_party\blink\renderer\platform\scheduler\common\*"
 xcopy "%srcpath%\src\third_party\blink\renderer\platform\scheduler\common\thread_load_tracker.orig.cc" "%dstpath%\src\third_party\blink\renderer\platform\scheduler\common\*"
+xcopy "%srcpath%\src\third_party\blink\renderer\platform\scheduler\common\device_capacity.cc" "%dstpath%\src\third_party\blink\renderer\platform\scheduler\common\*"
+xcopy "%srcpath%\src\third_party\blink\renderer\platform\scheduler\common\device_capacity.h" "%dstpath%\src\third_party\blink\renderer\platform\scheduler\common\*"
 echo "third_party\blink\renderer\platform\"
 xcopy "%srcpath%\src\third_party\blink\renderer\platform\runtime_enabled_features.json5" "%dstpath%\src\third_party\blink\renderer\platform\*"
 :GracefulExit

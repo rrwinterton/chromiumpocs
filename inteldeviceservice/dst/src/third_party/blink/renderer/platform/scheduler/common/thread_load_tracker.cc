@@ -8,6 +8,9 @@
 #include <stdio.h>
 #include <wchar.h>
 #include <string.h>
+#include <iostream>
+#include "base/logging.h"
+#include "third_party/blink/renderer/platform/scheduler/common/device_capacity.h"
 // rrw
 #include <algorithm>
 
@@ -81,11 +84,10 @@ base::TimeDelta Intersection(base::TimeTicks left1,
 }  // namespace
 
 //rrw
-double tmpLoad;
-char loadStr[512];
-wchar_t MsgInfo[512];
-int sampleCnt;
-// rrw
+float tmpLoad;
+Device_Capacity *pDeviceCapacity = NULL;
+DWORD threadId = -1;
+//rrw
 
 void ThreadLoadTracker::Advance(base::TimeTicks now, TaskState task_state) {
   // This function advances |time_| to now and calls |callback_|
@@ -115,24 +117,15 @@ void ThreadLoadTracker::Advance(base::TimeTicks now, TaskState task_state) {
     }
 
     time_ = next_current_time;
-    // rrw
+    //rrw
     tmpLoad = Load();
-    if (tmpLoad >= 0.10) {
-      if (0 != sampleCnt) {
-        itoa(sampleCnt, loadStr, 10);
-        strcat(loadStr, " less 10 percent capacity used.\n");
-        mbstowcs(MsgInfo, loadStr, 128);
-        OutputDebugStringW(MsgInfo);
-      }
-      sampleCnt = 0;
-
-      gcvt(tmpLoad, 3, loadStr);
-      strcat(loadStr, " percent capacity used.\n");
-      OutputDebugStringA(loadStr);
-    } else {
-      sampleCnt++;
+    if (pDeviceCapacity == NULL) {
+      pDeviceCapacity = new (Device_Capacity);
     }
-
+    threadId = GetCurrentThreadId();
+    pDeviceCapacity->setCapacity(threadId, tmpLoad);
+    pDeviceCapacity->getWeightedCapacity(threadId, tmpLoad);
+    //rrw
     if (time_ == next_reporting_time_) {
       // Call |callback_| if need and update next callback time.
       if (thread_state_ == ThreadState::kActive) {
