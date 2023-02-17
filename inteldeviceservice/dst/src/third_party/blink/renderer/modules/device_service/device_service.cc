@@ -15,10 +15,12 @@ namespace {
 
 String ServiceToString(device::mojom::blink::DeviceServiceType service) {
   switch (service) {
-    case device::mojom::blink::DeviceServiceType::kComputeCapacity:
-      return "computeCapacity";
-    case device::mojom::blink::DeviceServiceType::kVPU:
-      return "vpu";
+    case device::mojom::blink::DeviceServiceType::kCPUComputeCapacity:
+      return "CPUComputeCapacity";
+    case device::mojom::blink::DeviceServiceType::kGPUComputeCapacity:
+      return "GPUComputeCapacity";
+    case device::mojom::blink::DeviceServiceType::kVPUComputeCapacity:
+      return "VPUComputeCapacity";
   }
 }
 

@@ -1289,8 +1289,8 @@ static bool DeviceServiceMediaFeatureEval(const MediaQueryExpValue& value,
   MaybeRecordMediaFeatureValue(
       media_values, IdentifiableSurface::MediaFeatureName::kDeviceService,
       device_service);
-//rrw need to determine for VRR in the future
-      return device_service == DeviceServiceType::kComputeCapacity;
+//rrw need to determine for GPU in the future
+      return device_service == DeviceServiceType::kCPUComputeCapacity;
 }
 
 static MediaQueryOperator ReverseOperator(MediaQueryOperator op) {

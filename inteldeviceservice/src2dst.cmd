@@ -81,6 +81,8 @@ xcopy "%srcpath%\src\third_party\blink\renderer\modules\device_service\README.md
 echo "third_party\blink\renderer\modules"
 xcopy "%srcpath%\src\third_party\blink\renderer\modules\BUILD.gn" "%dstpath%\src\third_party\blink\renderer\modules\*"
 xcopy "%srcpath%\src\third_party\blink\renderer\modules\event_target_modules_names.json5" "%dstpath%\src\third_party\blink\renderer\modules\*"
+echo "third_party\blink\renderer\platform\scheduler\"
+xcopy "%srcpath%\src\third_party\blink\renderer\platform\scheduler\BUILD.gn" "%dstpath%\src\third_party\blink\renderer\platform\scheduler\common\*"
 echo "third_party\blink\renderer\platform\scheduler\common\"
 xcopy "%srcpath%\src\third_party\blink\renderer\platform\scheduler\common\thread_load_tracker.cc" "%dstpath%\src\third_party\blink\renderer\platform\scheduler\common\*"
 xcopy "%srcpath%\src\third_party\blink\renderer\platform\scheduler\common\thread_load_tracker.orig.cc" "%dstpath%\src\third_party\blink\renderer\platform\scheduler\common\*"

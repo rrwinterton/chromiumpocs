@@ -3,8 +3,9 @@
 // found in the LICENSE file.
 
 enum DeviceServiceType {
-  "computeCapacity",
-  "vpu",
+  "kCPUComputeCapacity",
+  "kGPUComputeCapacity",
+  "kVPUComputeCapacity"
 };
 
 [Exposed=Window, RuntimeEnabled=DeviceService, SecureContext]

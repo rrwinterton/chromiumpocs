@@ -12,66 +12,77 @@ Device_Capacity::Device_Capacity() noexcept {}
 Device_Capacity::~Device_Capacity() noexcept {}
 
 // setCapacity
-void Device_Capacity::setCapacity(int id, float currentCapacity) {
-  static int sampleCnt = 0;
-  int cnt;
-  char tmpStr[512];
-  char dbgStr[512];
-  std::map<int, float>::iterator it;
+void Device_Capacity::setCapacity(uint32_t id, float currentCapacity) {
+  static uint32_t idleCnt = 0;
+  static uint32_t prevTicCnt = 0;
+  static uint32_t prevTID = 0;
+  uint32_t ticCnt;
+  char tmpStr[1024];
+  char dbgStr[1024];
+  std::map<uint32_t, float>::iterator it;
 
-  if (highCapacity.find(id) == highCapacity.end()) {
-    highCapacity[id] = 0.0;
-  }
-  if (weightedCapacity.find(id) == weightedCapacity.end()) {
-    weightedCapacity[id] = 0.0;
-  }
-  if (currentCapacity > highCapacity[id]) {
-    highCapacity[id] = currentCapacity;
-  }
-  weightedCapacity[id] = (currentCapacity * WEIGHT_DECAY) +
-                         (weightedCapacity[id] * (1 - WEIGHT_DECAY));
-
-  strcpy(dbgStr, "tid: ");
-  itoa(id, tmpStr, 10);
-  strcat(dbgStr, tmpStr);
-  if (weightedCapacity[id] > 0.10) {
-    sampleCnt = 0;
-    if (weightedCapacity[id] > 0.30) {
-        strcat(dbgStr, " PERF: weighted capacity: ");
-    } else if ((weightedCapacity[id] <= 0.30) && (weightedCapacity[id] > 0.15)) {
-        strcat(dbgStr, " NOMINAL: weighted capacity: ");
-    } else {
-        strcat(dbgStr, " ECO: weighted capacity: ");
+  ticCnt = GetTickCount();
+  if ((ticCnt != prevTicCnt) || (id != prevTID)) {
+    prevTicCnt = ticCnt;
+    prevTID = id;
+    if (highCapacity.find(id) == highCapacity.end()) {
+      highCapacity[id] = 0.0;
     }
-    gcvt((float)weightedCapacity[id], 4, tmpStr);
+    if (weightedCapacity.find(id) == weightedCapacity.end()) {
+      weightedCapacity[id] = 0.0;
+    }
+    if (currentCapacity > highCapacity[id]) {
+      highCapacity[id] = currentCapacity;
+    }
+    weightedCapacity[id] = (currentCapacity * WEIGHT_DECAY) +
+                           (weightedCapacity[id] * (1 - WEIGHT_DECAY));
+    strcpy(dbgStr, "time, ");
+    ticCnt = GetTickCount();
+    itoa(ticCnt, tmpStr, 10);
     strcat(dbgStr, tmpStr);
-    LOG(ERROR) << dbgStr;
-  } else {
-    if ((sampleCnt % 1024) == 0) {
-  strcpy(dbgStr, "total pairs: ");
-      cnt = (int ) weightedCapacity.size();
-      itoa(cnt, tmpStr, 10);
-      strcat(dbgStr, tmpStr);
-      strcat(dbgStr, ", tid: ");
-      itoa(id, tmpStr, 10);
-      strcat(dbgStr, tmpStr);
-      strcat(dbgStr, " Erasing mapped, max value: ");
-      gcvt((float)highCapacity[id], 4, tmpStr);
+    strcat(dbgStr, ", tid, ");
+    itoa(id, tmpStr, 10);
+    strcat(dbgStr, tmpStr);
+    if (weightedCapacity[id] > 0.30) {
+      strcat(dbgStr, ", OVER, ");
+      gcvt((float)weightedCapacity[id], 4, tmpStr);
       strcat(dbgStr, tmpStr);
       LOG(ERROR) << dbgStr;
-      highCapacity[id];
-      it = highCapacity.find(id);
-      highCapacity.erase(it);
-      it = weightedCapacity.find(id);
-      weightedCapacity.erase(it);
-
+    } else if ((weightedCapacity[id] <= 0.30) &&
+               (weightedCapacity[id] > 0.15)) {
+      strcat(dbgStr, ", MEET, ");
+      gcvt((float)weightedCapacity[id], 4, tmpStr);
+      strcat(dbgStr, tmpStr);
+      LOG(ERROR) << dbgStr;
+    } else if ((weightedCapacity[id] <= 0.15) &&
+               (weightedCapacity[id] > 0.10)) {
+      strcat(dbgStr, ", UNDER, ");
+      gcvt((float)weightedCapacity[id], 4, tmpStr);
+      strcat(dbgStr, tmpStr);
+      LOG(ERROR) << dbgStr;
+    } else {
+      if ((idleCnt % 64) == 0) {
+        strcat(dbgStr, ", IDLE, ");
+        gcvt((float)weightedCapacity[id], 4, tmpStr);
+        strcat(dbgStr, tmpStr);
+        strcat(dbgStr, ", max was, ");
+        gcvt((float) highCapacity[id], 4, tmpStr);
+        strcat(dbgStr, tmpStr);
+        LOG(ERROR) << dbgStr;
+        it = highCapacity.find(id);
+        highCapacity.erase(it);
+        it = weightedCapacity.find(id);
+        weightedCapacity.erase(it);
+        idleCnt = 1;
+      } else {
+        idleCnt++;
+      }
     }
-    sampleCnt++;
-  } 
+  }
 }
 
 // getWeightedCapacity
-void Device_Capacity::getWeightedCapacity(int id, float& Capacity) {
+void Device_Capacity::getWeightedCapacity(uint32_t id, float& Capacity) {
   if (weightedCapacity.find(id) == weightedCapacity.end()) {
     weightedCapacity[id] = 0.0;
   }
@@ -79,7 +90,7 @@ void Device_Capacity::getWeightedCapacity(int id, float& Capacity) {
 }
 
 // getHighCapacity
-void Device_Capacity::getHighCapacity(int id, float& Capacity) {
+void Device_Capacity::getHighCapacity(uint32_t id, float& Capacity) {
   if (highCapacity.find(id) == highCapacity.end()) {
     highCapacity[id] = 0.0;
   }

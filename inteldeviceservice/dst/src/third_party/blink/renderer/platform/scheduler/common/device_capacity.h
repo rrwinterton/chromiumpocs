@@ -7,11 +7,11 @@ class Device_Capacity {
  public:
   Device_Capacity() noexcept;
   ~Device_Capacity() noexcept;
-  void setCapacity(int id, float currentCapacity);
-  void getWeightedCapacity(int id, float& Capacity);
-  void getHighCapacity(int id, float& Capacity);
+  void setCapacity(uint32_t id, float currentCapacity);
+  void getWeightedCapacity(uint32_t id, float& Capacity);
+  void getHighCapacity(uint32_t id, float& Capacity);
 
  private:
-  std::map<int, float> highCapacity;
-  std::map<int, float> weightedCapacity;
+  std::map<uint32_t, float> highCapacity;
+  std::map<uint32_t, float> weightedCapacity;
 };

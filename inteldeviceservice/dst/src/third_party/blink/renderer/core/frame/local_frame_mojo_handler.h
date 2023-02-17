@@ -305,7 +305,7 @@ class LocalFrameMojoHandler
       device_service_receiver_{this, nullptr};
 
   device::mojom::blink::DeviceServiceType current_device_service_ =
-      device::mojom::blink::DeviceServiceType::kComputeCapacity;
+      device::mojom::blink::DeviceServiceType::kCPUComputeCapacity;
 
   std::unique_ptr<power_scheduler::PowerModeVoter>
       script_execution_power_mode_voter_;

@@ -75,7 +75,7 @@ class CORE_EXPORT MediaValuesCached final : public MediaValues {
     device::mojom::blink::DevicePostureType device_posture =
         device::mojom::blink::DevicePostureType::kContinuous;
     device::mojom::blink::DeviceServiceType device_service =
-        device::mojom::blink::DeviceServiceType::kComputeCapacity;
+        device::mojom::blink::DeviceServiceType::kCPUComputeCapacity;
 
     MediaValuesCachedData();
     explicit MediaValuesCachedData(Document&);

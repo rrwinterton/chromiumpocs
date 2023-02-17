@@ -17,7 +17,7 @@ std::ofstream o;
 
 mojom::DeviceServiceType DeviceServicePlatformProviderWin::GetDeviceService() {
   o << "test";
-  return mojom::DeviceServiceType::kComputeCapacity;
+  return mojom::DeviceServiceType::kCPUComputeCapacity;
 }
 
 void DeviceServicePlatformProviderWin::StartListening() {

@@ -5,8 +5,9 @@
 module device.mojom;
 
 enum DeviceServiceType {
-  kComputeCapacity,
-  kVPU,
+  kCPUComputeCapacity,
+  kGPUComputeCapacity,
+  kVPUComputeCapacity
 };
 
 // This interface is used to get the service of the device from

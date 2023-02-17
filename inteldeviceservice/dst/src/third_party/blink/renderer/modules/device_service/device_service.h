@@ -48,7 +48,7 @@ class MODULES_EXPORT DeviceService
   void EnsureServiceConnection();
 
   device::mojom::blink::DeviceServiceType Service_ =
-      device::mojom::blink::DeviceServiceType::kComputeCapacity;
+      device::mojom::blink::DeviceServiceType::kCPUComputeCapacity;
   HeapMojoRemote<device::mojom::blink::DeviceServiceProvider> service_;
   HeapMojoReceiver<device::mojom::blink::DeviceServiceProviderClient,
                    DeviceService>
