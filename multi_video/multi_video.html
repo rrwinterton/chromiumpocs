@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Auto Play Video on Mouse Move Example</title>
+  <link rel="stylesheet" href="multi_video.css">
+  <script src="multi_video.js"></script>
+</head>
+
+<body>
+  <div class="Div1">
+    <video id="Video1" muted controls width="256" height="128" preload="metadata">
+      <source src="bbb.mp4" type="video/mp4">
+    </video>
+
+    <div class="Div2">
+      <video id="Video2" muted controls width="256" height="128" preload="metadata">
+        <source src="bbb.mp4" type="video/mp4">
+      </video>
+    </div>
+    <div class="Div3">
+      <video id="Video3" muted controls width="256" height="128" preload="metadata">
+        <source src="bbb.mp4" type="video/mp4">
+      </video>
+    </div>
+
+    <script> //handle html/element maniupluations
+
+      document.addEventListener("mousemove", function () {
+        const video1 = document.getElementById("Video1");
+        const video2 = document.getElementById("Video2");
+        const video3 = document.getElementById("Video3");
+
+        if (isElementInViewport(video1)) {
+          if (video1.paused) {
+            video1.play();
+            video1.loop = true;
+          }
+        } else { // not in viewport
+          video1.pause();
+          video1.loop = false;
+        }
+
+        if (isElementInViewport(video2)) {
+          if (video2.paused) {
+            video2.play();
+            video2.loop = true;
+          }
+        } else { // not in viewport
+          video2.pause();
+          video2.loop = false;
+        }
+
+        if (isElementInViewport(video3)) {
+          if (video3.paused) {
+            video3.play();
+            video3.loop = true;
+          }
+        } else { // not in viewport
+          video3.pause();
+          video3.loop = false;
+        }
+
+      });
+
+    </script>
+</body>
+
+</html>

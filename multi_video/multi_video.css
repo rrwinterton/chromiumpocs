@@ -1,0 +1,41 @@
+/* multi_video.css style sheet */
+
+body {
+  background-color: black;
+}
+
+.Div1 {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 10px;
+  left: 50px;
+  width: 280px;
+  height: 160px;
+  background-color: black;
+}
+
+.Div2 {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 500px;
+  left: 120px;
+  width: 280px;
+  height: 160px;
+  background-color: black;
+}
+
+.Div3 {
+  position: absolute;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  top: 800px;
+  left: 500px;
+  width: 280px;
+  height: 160px;
+  background-color: black;
+}
