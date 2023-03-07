@@ -1,5 +1,0 @@
-The following list of files are available for redistribution under the Intel Platform Framework Core SDK license agreement.
-
-Subject to the license terms for the software, you may redistribute the following unmodified as a part of your programs:
-
-N/A
