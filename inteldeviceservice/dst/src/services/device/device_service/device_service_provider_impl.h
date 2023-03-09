@@ -39,7 +39,17 @@ class DeviceServiceProviderImpl : public mojom::DeviceServiceProvider {
   void AddListenerAndGetCurrentService(
       mojo::PendingRemote<mojom::DeviceServiceProviderClient> client,
       AddListenerAndGetCurrentServiceCallback callback) override;
+  void SubmitTaskCapacityHint(uint32_t system_time,
+                              uint32_t process_id,
+                              uint32_t pthread_id,
+                              mojom::Capacity capacity,
+                              SubmitTaskCapacityHintCallback callback) override;
   void OnReceiverConnectionError();
+
+  // Since we are currently only performing updates at the system level, we will
+  // collapse all requesting into a single set of variables.
+  uint32_t last_update_;
+  mojom::Capacity last_capacity_;
 
   std::unique_ptr<DeviceServicePlatformProvider> platform_provider_;
   mojo::ReceiverSet<mojom::DeviceServiceProvider> receivers_;
