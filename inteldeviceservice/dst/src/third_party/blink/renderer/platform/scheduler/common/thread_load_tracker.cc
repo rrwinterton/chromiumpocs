@@ -3,13 +3,8 @@
 // found in the LICENSE file.
 
 #include "third_party/blink/renderer/platform/scheduler/common/thread_load_tracker.h"
-//rrw
+// rrw
 #include <windows.h>
-#include <stdio.h>
-#include <wchar.h>
-#include <string.h>
-#include <iostream>
-#include "base/logging.h"
 #include "third_party/blink/renderer/platform/scheduler/common/device_capacity.h"
 // rrw
 #include <algorithm>
@@ -75,19 +70,14 @@ base::TimeDelta Intersection(base::TimeTicks left1,
   base::TimeTicks left = std::max(left1, left2);
   base::TimeTicks right = std::min(right1, right2);
 
-  if (left <= right)
+  if (left <= right) {
     return right - left;
+  }
 
   return base::TimeDelta();
 }
 
 }  // namespace
-
-//rrw
-float tmpLoad;
-Device_Capacity *pDeviceCapacity = NULL;
-DWORD threadId = -1;
-//rrw
 
 void ThreadLoadTracker::Advance(base::TimeTicks now, TaskState task_state) {
   // This function advances |time_| to now and calls |callback_|
@@ -117,20 +107,16 @@ void ThreadLoadTracker::Advance(base::TimeTicks now, TaskState task_state) {
     }
 
     time_ = next_current_time;
-    //rrw
-    tmpLoad = Load();
-    if (pDeviceCapacity == NULL) {
-      pDeviceCapacity = new (Device_Capacity);
-    }
-    threadId = GetCurrentThreadId();
-    pDeviceCapacity->setCapacity(threadId, tmpLoad);
-    pDeviceCapacity->getWeightedCapacity(threadId, tmpLoad);
-    //rrw
+    // rrw
+    float tmp_load = Load();
+    device_capacity_.SetCapacity(tmp_load);
+    device_capacity_.GetWeightedCapacity(tmp_load);
+    // rrw
     if (time_ == next_reporting_time_) {
       // Call |callback_| if need and update next callback time.
       if (thread_state_ == ThreadState::kActive) {
-        //rrw
-        callback_.Run(time_, tmpLoad); // Load());
+        // rrw
+        callback_.Run(time_, tmp_load);  // Load());
         DCHECK_EQ(thread_state_, ThreadState::kActive);
       }
       next_reporting_time_ += reporting_interval_;

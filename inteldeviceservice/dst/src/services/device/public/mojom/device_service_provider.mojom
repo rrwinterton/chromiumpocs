@@ -10,6 +10,13 @@ enum DeviceServiceType {
   kVPUComputeCapacity
 };
 
+enum Capacity {
+  kCapacityIdle = 0,
+  kCapacityUnder,
+  kCapacityMeet,
+  kCapacityOver,
+};
+
 // This interface is used to get the service of the device from
 // DeviceServiceService.
 interface DeviceServiceProvider {
@@ -18,6 +25,10 @@ interface DeviceServiceProvider {
   AddListenerAndGetCurrentService(
     pending_remote<DeviceServiceProviderClient> client)
       => (DeviceServiceType service);
+
+  SubmitTaskCapacityHint(uint32 system_time, uint32 process_id,
+    uint32 thread_id, Capacity capacity)
+      => (int32 request_id);
 };
 
 // Interface that client of the DeviceServiceProvider interface must implement

@@ -1,17 +1,26 @@
-#include <string>
-#include <map>
 
-#define WEIGHT_DECAY 0.15
+#ifndef THIRD_PARTY_BLINK_RENDERER_PLATFORM_SCHEDULER_COMMON_THREAD_DEVICE_CAPACITY_H_
+#define THIRD_PARTY_BLINK_RENDERER_PLATFORM_SCHEDULER_COMMON_THREAD_DEVICE_CAPACITY_H_
 
-class Device_Capacity {
+#include "services/device/public/mojom/device_service_provider.mojom-blink.h"
+
+class DeviceCapacity {
  public:
-  Device_Capacity() noexcept;
-  ~Device_Capacity() noexcept;
-  void setCapacity(uint32_t id, float currentCapacity);
-  void getWeightedCapacity(uint32_t id, float& Capacity);
-  void getHighCapacity(uint32_t id, float& Capacity);
+  DeviceCapacity() noexcept;
+  ~DeviceCapacity() noexcept;
+
+  void SetCapacity(float current_capacity);
+  void GetWeightedCapacity(float& capacity);
+  void GetHighCapacity(float& capacity);
 
  private:
-  std::map<uint32_t, float> highCapacity;
-  std::map<uint32_t, float> weightedCapacity;
+  device::mojom::blink::DeviceServiceProvider& Provider();
+
+  float high_capacity_;
+  float weighted_capacity_;
+  uint32_t idle_count_;
+  uint32_t previous_tick_count_;
+  uint32_t previous_thread_id_;
 };
+
+#endif  // THIRD_PARTY_BLINK_RENDERER_PLATFORM_SCHEDULER_COMMON_THREAD_DEVICE_CAPACITY_H_
