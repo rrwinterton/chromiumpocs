@@ -1,0 +1,13 @@
+# Build arguments go here.
+# See "gn args <out_dir> --list" for available build arguments.
+is_component_build = false 
+is_debug = false 
+proprietary_codecs = true 
+ffmpeg_branding = "Chrome" 
+is_official_build=true
+#chrome_pgo_phase = 1
+enable_resource_allowlist_generation = false
+symbol_level = 1
+#pgo_data_path = "c:\Users\rrwin\Documents\dev\chromium\src\third_party\llvm-build\Release+Asserts\bin\profdata\chrome.profdata"
+clang_base_path="C:\Users\YourName\YourPath\icx\windows"
+clang_use_chrome_plugins = false
