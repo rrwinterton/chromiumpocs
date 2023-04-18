@@ -16,6 +16,17 @@
 #include "mojo/public/cpp/bindings/remote_set.h"
 #include "services/device/public/mojom/device_service_provider.mojom.h"
 
+#ifdef __cplusplus 
+#define EXTERN_C extern "C"
+#endif
+
+#define IPF 0
+
+#if IPF
+EXTERN_C int GearUp();    //ipf gear up
+EXTERN_C int GearDown();  //ipf gear down
+#endif
+
 namespace device {
 
 class DeviceServicePlatformProvider;
