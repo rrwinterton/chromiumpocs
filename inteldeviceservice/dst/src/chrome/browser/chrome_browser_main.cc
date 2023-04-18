@@ -340,8 +340,6 @@
 #include "components/spellcheck/common/spellcheck_features.h"
 #endif  // BUILDFLAG(IS_WIN) && BUILDFLAG(USE_BROWSER_SPELLCHECKER)
 
-#define IPF 0
-
 namespace {
 
 #if !BUILDFLAG(IS_ANDROID)
@@ -690,6 +688,7 @@ DLLEXPORT void __cdecl RelaunchChromeBrowserWithNewCommandLineIfNeeded() {
   upgrade_util::RelaunchChromeBrowserWithNewCommandLineIfNeeded();
 }
 
+#if BUILDFLAG(ENABLE_IPF)
 typedef unsigned int u32;
 extern "C" {
      void IPF_etw_register();
@@ -699,6 +698,7 @@ extern "C" {
      void IPF_etw_log_GearDown(u32 pl1 = 0, u32 pl2 = 0, u32 CPUpower = 0);
      void IPF_etw_log_event(u32 i = 0, const char* logmsg = "");
 }
+#endif
 #endif
 
 // content::BrowserMainParts implementation ------------------------------------
@@ -749,7 +749,7 @@ int ChromeBrowserMainParts::PreEarlyInitialization() {
     // result in browser startup bailing.
     return chrome::RESULT_CODE_NORMAL_EXIT_UPGRADE_RELAUNCHED;
   }
-  #if IPF
+  #if BUILDFLAG(ENABLE_IPF)
   ConnectIPF();
   IPF_etw_register();
   #endif
@@ -1907,7 +1907,7 @@ void ChromeBrowserMainParts::PostMainMessageLoopRun() {
   browser_process_->StartTearDown();
 #endif  // BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_WIN)
-  #if IPF
+  #if BUILDFLAG(ENABLE_IPF)
   DisconnectIPF();
   IPF_etw_unregister();
   #endif

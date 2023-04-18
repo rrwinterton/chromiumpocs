@@ -10,6 +10,7 @@ IF "%dstpath%" == "" (
 echo %srcpath% to %dstpath%
 echo "chrome\browser"
 xcopy "%srcpath%\src\chrome\browser\about_flags.cc"  "%dstpath%\src\chrome\browser\*"
+xcopy "%srcpath%\src\chrome\browser\BUILD.gn"  "%dstpath%\src\chrome\browser\*"
 xcopy "%srcpath%\src\chrome\browser\chrome_browser_main.h"  "%dstpath%\src\chrome\browser\*"
 xcopy "%srcpath%\src\chrome\browser\chrome_browser_main.cc"  "%dstpath%\src\chrome\browser\*"
 xcopy "%srcpath%\src\chrome\browser\flag_descriptions.cc"  "%dstpath%\src\chrome\browser\*"
@@ -30,6 +31,7 @@ xcopy "%srcpath%\src\content\public\common\content_features.h" "%dstpath%\src\co
 echo "services\device\device_service"
 xcopy "%srcpath%\src\services\device\device_service\IPF" "%dstpath%\src\services\device\device_service\*"
 xcopy "%srcpath%\src\services\device\device_service\BUILD.gn" "%dstpath%\src\services\device\device_service\*"
+xcopy "%srcpath%\src\services\device\device_service\buildflags.gni" "%dstpath%\src\services\device\device_service\*"
 xcopy "%srcpath%\src\services\device\device_service\device_service_platform_provider_win.cc" "%dstpath%\src\services\device\device_service\*"
 xcopy "%srcpath%\src\services\device\device_service\device_service_platform_provider_win.h" "%dstpath%\src\services\device\device_service\*"
 xcopy "%srcpath%\src\services\device\device_service\device_service_platform_provider.cc" "%dstpath%\src\services\device\device_service\*"

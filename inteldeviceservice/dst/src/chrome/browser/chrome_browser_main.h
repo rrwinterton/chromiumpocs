@@ -32,9 +32,7 @@
 #define EXTERN_C extern "C"
 #endif
 
-#define IPF 0
-
-#if IPF
+#if BUILDFLAG(ENABLE_IPF)
 EXTERN_C int ConnectIPF();
 EXTERN_C int DisconnectIPF();
 #endif

@@ -2,6 +2,8 @@
 # Use of this source code is governed by a BSD-style license that can be
 # found in the LICENSE file.
 
+import ("buildflags.gni")
+
 source_set("device_service") {
   visibility = [ "//services/device:*" ]
 
@@ -18,11 +20,11 @@ source_set("device_service") {
     "//services/device/public/mojom",
   ]
 
-  if (is_win) {
+  if (enable_ipf) {
     libs = [
-      #"ipf/ipf_control.lib",
-      #"ipf/ipfcorelib.lib",
-      #"ipf/CustomPOC_ETW.lib",
+      "ipf/ipf_control.lib",
+      "ipf/ipfcorelib.lib",
+      "ipf/CustomPOC_ETW.lib",
     ]
     sources += [
       "device_service_platform_provider_win.cc",

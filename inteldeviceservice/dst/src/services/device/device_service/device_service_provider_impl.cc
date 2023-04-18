@@ -10,10 +10,6 @@
 #include "mojo/public/cpp/bindings/remote_set.h"
 #include "services/device/device_service/device_service_platform_provider.h"
 
-// set to 1 to enabled or 0 to disable
-#define IPF 0
-#define LOGGING 1
-
 namespace device {
 
 constexpr uint32_t kUpdateIntervalMS = 50;
@@ -49,7 +45,7 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
   if (system_time < last_update_) {
     std::move(callback).Run(-1);
 
-    #if LOGGING
+    #if BUILDFLAG(ENABLE_LOGGING)
     LOG(ERROR) << "event in the past: " << system_time << " " << last_update_;
     #endif
 
@@ -62,55 +58,55 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
   
   if ((system_time - last_update_) > kUpdateIntervalMS) {
 
-    #if LOGGING
+    #if BUILDFLAG(ENABLE_LOGGING)
     const char* enum_name = "";
     #endif
 
     switch (last_capacity_) {
       case mojom::Capacity::kCapacityIdle:
 
-        #if LOGGING
+        #if BUILDFLAG(ENABLE_LOGGING)
         enum_name = "IDLE";
         #endif
 
-        #if IPF
+        #if BUILDFLAG(ENABLE_IPF)
         GearDown();
         #endif
 
         break;
       case mojom::Capacity::kCapacityUnder:
 
-        #if LOGGING
+        #if BUILDFLAG(ENABLE_LOGGING)
         enum_name = "UNDER";
         #endif
 
-        #if IPF
+        #if BUILDFLAG(ENABLE_IPF)
         GearDown();
         #endif
 
         break;
       case mojom::Capacity::kCapacityMeet:
-        #if LOGGING
+        #if BUILDFLAG(ENABLE_LOGGING)
         enum_name = "MEET";
         #endif
 
-        #if IPF
+        #if BUILDFLAG(ENABLE_IPF)
         #endif
 
         break;
       case mojom::Capacity::kCapacityOver:
-        #if LOGGING
+        #if BUILDFLAG(ENABLE_LOGGING)
         enum_name = "OVER";
         #endif
 
-        #if IPF
+        #if BUILDFLAG(ENABLE_IPF)
         GearUp();
         #endif
 
         break;
     }
 
-    #if LOGGING
+    #if BUILDFLAG(ENABLE_LOGGING)
     LOG(ERROR) << ::GetCurrentProcessId() << " time, " << system_time << " pid, " << process_id << " tid, " << thread_id << ", " << enum_name;
     #endif
 

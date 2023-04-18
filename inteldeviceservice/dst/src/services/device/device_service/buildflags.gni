@@ -1,0 +1,7 @@
+declare_args() {
+  enable_ipf = true
+}
+
+declare_args() {
+  enable_logging = false
+}
