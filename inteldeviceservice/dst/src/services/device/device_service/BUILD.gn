@@ -19,6 +19,11 @@ source_set("device_service") {
   ]
 
   if (is_win) {
+    libs = [
+      #"ipf/ipf_control.lib",
+      #"ipf/ipfcorelib.lib",
+      #"ipf/CustomPOC_ETW.lib",
+    ]
     sources += [
       "device_service_platform_provider_win.cc",
       "device_service_platform_provider_win.h",
