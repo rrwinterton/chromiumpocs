@@ -26,10 +26,9 @@ source_set("device_service") {
       "ipf/ipfcorelib.lib",
       "ipf/CustomPOC_ETW.lib",
     ]
-    sources += [
-      "device_service_platform_provider_win.cc",
-      "device_service_platform_provider_win.h",
-    ]
   }
-
+  sources += [
+    "device_service_platform_provider_win.cc",
+    "device_service_platform_provider_win.h",
+  ]
 }
