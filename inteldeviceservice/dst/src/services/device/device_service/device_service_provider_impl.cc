@@ -12,7 +12,7 @@
 
 namespace device {
 
-constexpr uint32_t kUpdateIntervalMS = 500;
+constexpr uint32_t kUpdateIntervalMS = 50;
 
 DeviceServiceProviderImpl::DeviceServiceProviderImpl(
     std::unique_ptr<DeviceServicePlatformProvider> platform_provider)
@@ -44,7 +44,11 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
     SubmitTaskCapacityHintCallback callback) {
   if (system_time < last_update_) {
     std::move(callback).Run(-1);
+
+    #if BUILDFLAG(ENABLE_LOGGING)
     LOG(ERROR) << "event in the past: " << system_time << " " << last_update_;
+    #endif
+
     return;
   }
 
@@ -53,25 +57,58 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
   }
   
   if ((system_time - last_update_) > kUpdateIntervalMS) {
+
+    #if BUILDFLAG(ENABLE_LOGGING)
     const char* enum_name = "";
+    #endif
+
     switch (last_capacity_) {
       case mojom::Capacity::kCapacityIdle:
+
+        #if BUILDFLAG(ENABLE_LOGGING)
         enum_name = "IDLE";
+        #endif
+
+        #if BUILDFLAG(ENABLE_IPF)
+        GearDown();
+        #endif
+
         break;
       case mojom::Capacity::kCapacityUnder:
+
+        #if BUILDFLAG(ENABLE_LOGGING)
         enum_name = "UNDER";
+        #endif
+
+        #if BUILDFLAG(ENABLE_IPF)
+        GearDown();
+        #endif
+
         break;
       case mojom::Capacity::kCapacityMeet:
+        #if BUILDFLAG(ENABLE_LOGGING)
         enum_name = "MEET";
+        #endif
+
+        #if BUILDFLAG(ENABLE_IPF)
+        #endif
+
         break;
       case mojom::Capacity::kCapacityOver:
+        #if BUILDFLAG(ENABLE_LOGGING)
         enum_name = "OVER";
+        #endif
+
+        #if BUILDFLAG(ENABLE_IPF)
+        GearUp();
+        #endif
+
         break;
-      default:
-        enum_name = "Unknown";
     }
-    LOG(ERROR) << ::GetCurrentProcessId() << " time, " << system_time << " pid, " << process_id << " tid, "
-               << thread_id << ", " << enum_name;
+
+    #if BUILDFLAG(ENABLE_LOGGING)
+    LOG(ERROR) << ::GetCurrentProcessId() << " time, " << system_time << " pid, " << process_id << " tid, " << thread_id << ", " << enum_name;
+    #endif
 
     last_update_ = system_time;
     last_capacity_ = mojom::Capacity::kCapacityIdle;

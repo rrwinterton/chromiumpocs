@@ -7154,7 +7154,7 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(features::kDevicePosture)},
 
     {"device-service", flag_descriptions::kDeviceServiceName,
-     flag_descriptions::kDeviceServiceDescription, kOsAll,
+     flag_descriptions::kDeviceServiceDescription, kOsWin | kOsCrOS | kOsLinux,
      FEATURE_VALUE_TYPE(features::kDeviceService)},
 
 #if BUILDFLAG(IS_CHROMEOS_ASH)
