@@ -575,11 +575,13 @@ DeviceServiceProviderBinder& GetDeviceServiceProviderBinderOverride() {
 void BindDeviceServiceProvider(
     mojo::PendingReceiver<device::mojom::DeviceServiceProvider> receiver) {
   const auto& binder = GetDeviceServiceProviderBinderOverride();
-  if (binder)
+  if (binder) {
     binder.Run(std::move(receiver));
+  }
 #if BUILDFLAG(IS_WIN)
-  else if (base::FeatureList::IsEnabled(features::kDeviceService))
+  else if (base::FeatureList::IsEnabled(blink::features::kDeviceService)) {
     GetDeviceService().BindDeviceServiceProvider(std::move(receiver));
+  }
 #endif
 }
 

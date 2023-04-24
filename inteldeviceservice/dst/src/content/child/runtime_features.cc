@@ -208,7 +208,7 @@ void SetRuntimeFeaturesFromChromiumFeatures() {
     {wf::EnableConsolidatedMovementXY, features::kConsolidatedMovementXY},
     {wf::EnableCooperativeScheduling, features::kCooperativeScheduling},
     {wf::EnableDevicePosture, features::kDevicePosture},
-    {wf::EnableDeviceService, features::kDeviceService},
+    {wf::EnableDeviceService, blink::features::kDeviceService},
     {wf::EnableHardwareProfiling, features::kHardwareProfiling},
     {wf::EnablePanelRefreshRate, features::kPanelRefreshRate},
     {wf::EnableDigitalGoods, features::kDigitalGoodsApi, kSetOnlyIfOverridden},
