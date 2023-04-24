@@ -7158,11 +7158,11 @@ const FeatureEntry kFeatureEntries[] = {
      FEATURE_VALUE_TYPE(features::kDeviceService)},
 
     {"hardware-profiling", flag_descriptions::kHardwareProfilingName,
-     flag_descriptions::kHardwareProfilingDescription, kOsAll,
+     flag_descriptions::kHardwareProfilingDescription, kOsWin | kOsCrOS | kOsLinux,
      FEATURE_VALUE_TYPE(features::kHardwareProfiling)},
 
     {"enable-panel-refresh-rate", flag_descriptions::kPanelRefreshRateName,
-     flag_descriptions::kPanelRefreshRateDescription, kOsAll,
+     flag_descriptions::kPanelRefreshRateDescription, kOsWin | kOsCrOS | kOsLinux,
      FEATURE_VALUE_TYPE(features::kPanelRefreshRate)},
 
 #if BUILDFLAG(IS_CHROMEOS_ASH)
