@@ -7157,6 +7157,14 @@ const FeatureEntry kFeatureEntries[] = {
      flag_descriptions::kDeviceServiceDescription, kOsWin | kOsCrOS | kOsLinux,
      FEATURE_VALUE_TYPE(features::kDeviceService)},
 
+    {"hardware-profiling", flag_descriptions::kHardwareProfilingName,
+     flag_descriptions::kHardwareProfilingDescription, kOsAll,
+     FEATURE_VALUE_TYPE(features::kHardwareProfiling)},
+
+    {"enable-panel-refresh-rate", flag_descriptions::kPanelRefreshRateName,
+     flag_descriptions::kPanelRefreshRateDescription, kOsAll,
+     FEATURE_VALUE_TYPE(features::kPanelRefreshRate)},
+
 #if BUILDFLAG(IS_CHROMEOS_ASH)
     {"device-force-scheduled-reboot",
      flag_descriptions::kDeviceForceScheduledRebootName,

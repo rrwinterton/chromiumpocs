@@ -1328,6 +1328,16 @@
     "expiry_milestone": -1
   },
   {
+    "name": "hardware-profiling",
+    "owners": [ "richard.winterton@intel.com" ],
+    "expiry_milestone": -1
+  },
+  {
+    "name": "panel-refresh-rate",
+    "owners": [ "richard.winterton@intel.com" ],
+    "expiry_milestone": -1
+  },
+  {
     "name": "devtools-tab-target",
     "owners": [ "dsv", "caseq" ],
     "expiry_milestone": 112

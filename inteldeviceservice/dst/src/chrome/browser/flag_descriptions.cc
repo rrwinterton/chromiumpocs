@@ -728,6 +728,13 @@ const char kDeviceServiceName[] = "Device Service API";
 const char kDeviceServiceDescription[] =
     "Enables Device Service API (device services)";
 
+const char kHardwareProfilingName[] = "Hardware Profiling";
+const char kHardwareProfilingDescription[] = "Enables Hardware Profiling";
+
+const char kPanelRefreshRateName[] = "Enable Panel Refresh Rate";
+const char kPanelRefreshRateDescription[] =
+    "Enables Panel Refresh Rate IPC";
+
 const char kDiscountConsentV2Name[] = "Discount Consent V2";
 const char kDiscountConsentV2Description[] = "Enables Discount Consent V2";
 
