@@ -983,6 +983,16 @@
       status: "experimental",
     },
     {
+      name: "HardwareProfiling",
+      public: true,
+      status: "experimental",
+    },
+    {
+      name: "PanelRefreshRate",
+      public: true,
+      status: "experimental",
+    },
+    {
       name: "DialogNewFocusBehavior",
       status: "experimental",
       base_feature: "DialogNewFocusBehavior",
