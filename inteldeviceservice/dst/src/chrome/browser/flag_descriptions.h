@@ -540,6 +540,12 @@ extern const char kDevicePostureDescription[];
 extern const char kDeviceServiceName[];
 extern const char kDeviceServiceDescription[];
 
+extern const char kHardwareProfilingName[];
+extern const char kHardwareProfilingDescription[];
+
+extern const char kPanelRefreshRateName[];
+extern const char kPanelRefreshRateDescription[];
+
 extern const char kIsolatedAppOriginsName[];
 extern const char kIsolatedAppOriginsDescription[];
 

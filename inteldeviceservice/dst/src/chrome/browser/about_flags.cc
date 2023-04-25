@@ -7155,7 +7155,15 @@ const FeatureEntry kFeatureEntries[] = {
 
     {"device-service", flag_descriptions::kDeviceServiceName,
      flag_descriptions::kDeviceServiceDescription, kOsWin | kOsCrOS | kOsLinux,
-     FEATURE_VALUE_TYPE(features::kDeviceService)},
+     FEATURE_VALUE_TYPE(blink::features::kDeviceService)},
+
+    {"hardware-profiling", flag_descriptions::kHardwareProfilingName,
+     flag_descriptions::kHardwareProfilingDescription, kOsWin | kOsCrOS | kOsLinux,
+     FEATURE_VALUE_TYPE(features::kHardwareProfiling)},
+
+    {"enable-panel-refresh-rate", flag_descriptions::kPanelRefreshRateName,
+     flag_descriptions::kPanelRefreshRateDescription, kOsWin | kOsCrOS | kOsLinux,
+     FEATURE_VALUE_TYPE(features::kPanelRefreshRate)},
 
 #if BUILDFLAG(IS_CHROMEOS_ASH)
     {"device-force-scheduled-reboot",

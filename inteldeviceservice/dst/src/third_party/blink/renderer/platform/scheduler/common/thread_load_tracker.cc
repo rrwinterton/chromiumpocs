@@ -6,6 +6,7 @@
 // rrw
 #include <windows.h>
 #include "third_party/blink/renderer/platform/scheduler/common/device_capacity.h"
+#include "third_party/blink/public/common/features.h"
 // rrw
 #include <algorithm>
 
@@ -109,8 +110,10 @@ void ThreadLoadTracker::Advance(base::TimeTicks now, TaskState task_state) {
     time_ = next_current_time;
     // rrw
     float tmp_load = Load();
-    device_capacity_.SetCapacity(tmp_load);
-    device_capacity_.GetWeightedCapacity(tmp_load);
+    if (base::FeatureList::IsEnabled(blink::features::kDeviceService)) {
+      device_capacity_.SetCapacity(tmp_load);
+      device_capacity_.GetWeightedCapacity(tmp_load);
+    }
     // rrw
     if (time_ == next_reporting_time_) {
       // Call |callback_| if need and update next callback time.

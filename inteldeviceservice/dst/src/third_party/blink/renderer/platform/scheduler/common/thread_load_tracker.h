@@ -8,8 +8,8 @@
 #include "base/callback.h"
 #include "base/time/time.h"
 #include "third_party/blink/renderer/platform/platform_export.h"
-#include "third_party/blink/renderer/platform/wtf/allocator/allocator.h"
 #include "third_party/blink/renderer/platform/scheduler/common/device_capacity.h"
+#include "third_party/blink/renderer/platform/wtf/allocator/allocator.h"
 
 namespace blink {
 namespace scheduler {
@@ -69,11 +69,12 @@ class PLATFORM_EXPORT ThreadLoadTracker {
 
   Callback callback_;
 
-  //eg
+  // eg
   DeviceCapacity device_capacity_;
-  //eg
-};
+  // eg
 
+  
+};
 }  // namespace scheduler
 }  // namespace blink
 
