@@ -1,31 +1,45 @@
 // freqreq.cpp
 
 #include <iostream>
+#include <string>
 #include "frequencyLimiter.h"
 
 // unit test main
-int main()
+int main(int argc, char* argv[])
 {
-    std::cout << "Frequency Limiter Unit Test:\n";
-
     // locals
     frequencyLimiter FrequencyLimiter;
     int ACCoreFrequency, DCCoreFrequency;
     bool IsHybrid;
     int Ret;
 
+    std::cout << "Frequency Limiter Unit Test:" << std::endl;
+    if (argc != 3) {
+     std::cout << "usage: freqreq ACMaxFreq DCMaxFreq" << std::endl;
+     return ERROR_INPUT;
+    }
+
+    ACCoreFrequency = std::stoi(argv[1]);
+    DCCoreFrequency = std::stoi(argv[2]);
+
     // check for hybrid
     Ret = FrequencyLimiter.IsHybridCore(IsHybrid);
+    if (Ret != 0)
+    {
+        goto GracefulExit;
+    }
 
+    /*
     // get pcore ac dc frequency
     Ret = FrequencyLimiter.GetCoreMaxFrequency(PCORE, ACCoreFrequency, DCCoreFrequency);
     if (Ret != 0)
     {
         goto GracefulExit;
     }
+    */
 
     // set pcore ac dc frequency
-    Ret = FrequencyLimiter.SetCoreMaxFrequency(PCORE, 2998, 2997);
+    Ret = FrequencyLimiter.SetCoreMaxFrequency(PCORE, ACCoreFrequency, DCCoreFrequency);
     if (Ret != 0)
     {
         goto GracefulExit;
@@ -45,14 +59,17 @@ int main()
     // if hybrid system
     if (IsHybrid)
     {
+        /*
         // get ecore ac dc frequency
         Ret = FrequencyLimiter.GetCoreMaxFrequency(ECORE, ACCoreFrequency, DCCoreFrequency);
         if (Ret != 0)
         {
             goto GracefulExit;
         }
+        */
+
         // set ecore ac dc frequency
-        Ret = FrequencyLimiter.SetCoreMaxFrequency(ECORE, 2999, 2998);
+        Ret = FrequencyLimiter.SetCoreMaxFrequency(ECORE, ACCoreFrequency, DCCoreFrequency);
         if (Ret != 0)
         {
             goto GracefulExit;

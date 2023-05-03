@@ -5,6 +5,7 @@
 #define ECORE 1
 
 // error codes
+#define ERROR_INPUT -1
 #define NON_HYBRID_CORE_ECORE_REQUEST -2
 #define GUID_ALLOCATION_ERROR -3
 
