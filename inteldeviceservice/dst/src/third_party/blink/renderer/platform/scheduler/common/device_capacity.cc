@@ -35,7 +35,6 @@ device::mojom::blink::DeviceServiceProvider& DeviceCapacity::Provider() {
 
 // setCapacity
 void DeviceCapacity::SetCapacity(float current_capacity) {
-
   uint32_t tick_count = GetTickCount();
   // TODO: Switch to PlatformThread::CurrentId()
   DWORD id = ::GetCurrentThreadId();
@@ -67,12 +66,11 @@ void DeviceCapacity::SetCapacity(float current_capacity) {
         return;
       }
     }
+    Provider().SubmitTaskCapacityHint(
+        tick_count, ::GetCurrentProcessId(), id, capacity,
+        base::BindOnce([](int32_t request_id) {
+        }));
 
-    Provider().SubmitTaskCapacityHint(tick_count, ::GetCurrentProcessId(), id,
-                                      capacity,
-                                      base::BindOnce([](int32_t request_id) {
-                                        LOG(ERROR) << "RequestID " << request_id;
-                                      }));
   }
 }
 

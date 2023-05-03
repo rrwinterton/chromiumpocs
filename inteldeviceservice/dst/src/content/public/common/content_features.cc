@@ -285,12 +285,21 @@ BASE_FEATURE(kDevicePosture,
              "DevicePosture",
              base::FEATURE_DISABLED_BY_DEFAULT);
 
+/*
 // Enable the device service API.
 // Tracking bug for enabling device service API
-BASE_FEATURE(kDeviceService,
-             "DeviceService",
+BASE_FEATURE(kDeviceService, "DeviceService", base::FEATURE_ENABLED_BY_DEFAULT);
+*/
+
+// Enable Hardware Profiling
+BASE_FEATURE(kHardwareProfiling,
+             "HardwareProfiling",
              base::FEATURE_ENABLED_BY_DEFAULT);
 
+// Enable Panel Refresh Rate
+BASE_FEATURE(kPanelRefreshRate,
+             "PanelRefreshRate",
+             base::FEATURE_ENABLED_BY_DEFAULT);
 
 // Controls whether the Digital Goods API is enabled.
 // https://github.com/WICG/digital-goods/

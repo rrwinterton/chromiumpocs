@@ -15,6 +15,16 @@
 #include "mojo/public/cpp/bindings/receiver_set.h"
 #include "mojo/public/cpp/bindings/remote_set.h"
 #include "services/device/public/mojom/device_service_provider.mojom.h"
+#include "chrome/browser/buildflags.h"
+
+#ifdef __cplusplus 
+#define EXTERN_C extern "C"
+#endif
+
+#if BUILDFLAG(ENABLE_IPF)
+EXTERN_C int GearUp();    //ipf gear up
+EXTERN_C int GearDown();  //ipf gear down
+#endif
 
 namespace device {
 
