@@ -1,5 +1,11 @@
 #pragma once
 
+#include <windows.h>
+#include <string>
+#include <guiddef.h>
+#include <rpc.h>
+
+
 // core types for this class (p and e)
 #define PCORE 0
 #define ECORE 1
@@ -14,6 +20,8 @@ class frequencyLimiter
 {
 private:
 	bool m_IsHybrid;
+	GUID m_PCoreGuid;
+	GUID m_ECoreGuid;
 
 public:
 	frequencyLimiter();

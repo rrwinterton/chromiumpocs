@@ -21,13 +21,16 @@ frequencyLimiter::frequencyLimiter()
 
     m_IsHybrid = false;
 
-    IsOSHybridCapable = IsHybridOSEx();
-    if (true == IsOSHybridCapable)
-    {
-        GetProcessorInfo(procInfo);
-        m_IsHybrid = procInfo.hybrid;
-        // m_MaximumFrequency = procInfo.logicalCore.maximumFrequency;
+    GetProcessorInfo(procInfo);
+    m_IsHybrid = procInfo.hybrid;
+    if (m_IsHybrid) {
+        m_PCoreGuid = GUID_PROCESSOR_FREQUENCY_LIMIT_1;
+        m_ECoreGuid = GUID_PROCESSOR_FREQUENCY_LIMIT;
     }
+    else {
+        m_PCoreGuid = GUID_PROCESSOR_FREQUENCY_LIMIT;
+    }
+    // m_MaximumFrequency = procInfo.logicalCore.maximumFrequency;
 }
 
 //frequencyLimiter class destructor
@@ -60,12 +63,12 @@ int frequencyLimiter::SetCoreMaxFrequency(int Core, int ACMaxFrequency, int DCMa
     }
     if (Core == PCORE)
     {
-        ReturnValue = PowerWriteACValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP, &GUID_PROCESSOR_FREQUENCY_LIMIT, ACMaxFrequency);
+        ReturnValue = PowerWriteACValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP, &m_PCoreGuid, ACMaxFrequency);
         if (ReturnValue != ERROR_SUCCESS)
         {
             goto GracefulExit;
         }
-        ReturnValue = PowerWriteDCValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP, &GUID_PROCESSOR_FREQUENCY_LIMIT, DCMaxFrequency);
+        ReturnValue = PowerWriteDCValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP, &m_PCoreGuid, DCMaxFrequency);
         if (ReturnValue != ERROR_SUCCESS)
         {
             goto GracefulExit;
@@ -77,12 +80,12 @@ int frequencyLimiter::SetCoreMaxFrequency(int Core, int ACMaxFrequency, int DCMa
         {
             goto GracefulExit;
         }
-        ReturnValue = PowerWriteACValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP, &GUID_PROCESSOR_FREQUENCY_LIMIT_1, ACMaxFrequency);
+        ReturnValue = PowerWriteACValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP, &m_ECoreGuid, ACMaxFrequency);
         if (ReturnValue != ERROR_SUCCESS)
         {
             goto GracefulExit;
         }
-        ReturnValue = PowerWriteACValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP, &GUID_PROCESSOR_FREQUENCY_LIMIT_1, DCMaxFrequency);
+        ReturnValue = PowerWriteDCValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP, &m_ECoreGuid, DCMaxFrequency);
         if (ReturnValue != ERROR_SUCCESS)
         {
             goto GracefulExit;
@@ -113,7 +116,7 @@ int frequencyLimiter::GetCoreMaxFrequency(int Core, int &ACMaxFrequency, int &DC
         ReturnValue = NON_HYBRID_CORE_ECORE_REQUEST;
         goto GracefulExit;
     }
-
+    
     guid = new GUID();
     if (guid == NULL)
     {
@@ -136,7 +139,7 @@ int frequencyLimiter::GetCoreMaxFrequency(int Core, int &ACMaxFrequency, int &DC
     rpcStatus = RpcStringFree((RPC_WSTR *)&subgroup_guid_string);
     if (Core == PCORE)
     {
-        rpcStatus = UuidToString(&GUID_PROCESSOR_FREQUENCY_LIMIT, (RPC_WSTR *)&freq_limit_guid_string);
+        rpcStatus = UuidToString(&m_PCoreGuid, (RPC_WSTR *)&freq_limit_guid_string);
         if (rpcStatus != RPC_S_OK)
         {
             ReturnValue = rpcStatus;
@@ -147,7 +150,7 @@ int frequencyLimiter::GetCoreMaxFrequency(int Core, int &ACMaxFrequency, int &DC
     }
     else
     {
-        rpcStatus = UuidToString(&GUID_PROCESSOR_FREQUENCY_LIMIT_1, (RPC_WSTR *)&freq_limit_guid_string);
+        rpcStatus = UuidToString(&m_ECoreGuid, (RPC_WSTR *)&freq_limit_guid_string);
         if (rpcStatus != RPC_S_OK)
         {
             ReturnValue = rpcStatus;

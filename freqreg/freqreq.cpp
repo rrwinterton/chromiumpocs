@@ -9,18 +9,20 @@ int main(int argc, char* argv[])
 {
     // locals
     frequencyLimiter FrequencyLimiter;
-    int ACCoreFrequency, DCCoreFrequency;
+    int PCoreACCoreFrequency, PCoreDCCoreFrequency, ECoreACCoreFrequency, ECoreDCCoreFrequency;
     bool IsHybrid;
     int Ret;
 
     std::cout << "Frequency Limiter Unit Test:" << std::endl;
-    if (argc != 3) {
-     std::cout << "usage: freqreq ACMaxFreq DCMaxFreq" << std::endl;
+    if (argc != 5) {
+     std::cout << "usage: freqreq PCore ACMaxFreq PCore DCMaxFreq ECore ACMaxFreq Ecore DCMaxFreq" << std::endl;
      return ERROR_INPUT;
     }
 
-    ACCoreFrequency = std::stoi(argv[1]);
-    DCCoreFrequency = std::stoi(argv[2]);
+    PCoreACCoreFrequency = std::stoi(argv[1]);
+    PCoreDCCoreFrequency = std::stoi(argv[2]);
+    ECoreACCoreFrequency = std::stoi(argv[3]);
+    ECoreDCCoreFrequency = std::stoi(argv[4]);
 
     // check for hybrid
     Ret = FrequencyLimiter.IsHybridCore(IsHybrid);
@@ -39,22 +41,22 @@ int main(int argc, char* argv[])
     */
 
     // set pcore ac dc frequency
-    Ret = FrequencyLimiter.SetCoreMaxFrequency(PCORE, ACCoreFrequency, DCCoreFrequency);
+    Ret = FrequencyLimiter.SetCoreMaxFrequency(PCORE, PCoreACCoreFrequency, PCoreDCCoreFrequency);
     if (Ret != 0)
     {
         goto GracefulExit;
     }
 
     // verify you set pcore ac dc frequency
-    Ret = FrequencyLimiter.GetCoreMaxFrequency(PCORE, ACCoreFrequency, DCCoreFrequency);
+    Ret = FrequencyLimiter.GetCoreMaxFrequency(PCORE, PCoreACCoreFrequency, PCoreDCCoreFrequency);
     if (Ret != 0)
     {
         goto GracefulExit;
     }
 
     // output pcore ac dc frequency
-    std::cout << "PCore AC Freq " << ACCoreFrequency << std::endl
-              << "PCore DC Freq " << DCCoreFrequency << std::endl;
+    std::cout << "PCore AC Freq " << PCoreACCoreFrequency << std::endl
+              << "PCore DC Freq " << PCoreDCCoreFrequency << std::endl;
 
     // if hybrid system
     if (IsHybrid)
@@ -69,22 +71,22 @@ int main(int argc, char* argv[])
         */
 
         // set ecore ac dc frequency
-        Ret = FrequencyLimiter.SetCoreMaxFrequency(ECORE, ACCoreFrequency, DCCoreFrequency);
+        Ret = FrequencyLimiter.SetCoreMaxFrequency(ECORE, ECoreACCoreFrequency, ECoreDCCoreFrequency);
         if (Ret != 0)
         {
             goto GracefulExit;
         }
         // verify ecore ac dc frequency
-        Ret = FrequencyLimiter.GetCoreMaxFrequency(ECORE, ACCoreFrequency, DCCoreFrequency);
+        Ret = FrequencyLimiter.GetCoreMaxFrequency(ECORE, ECoreACCoreFrequency, ECoreDCCoreFrequency);
         if (Ret != 0)
         {
             goto GracefulExit;
         }
-        std::cout << "ECore AC Freq " << ACCoreFrequency << std::endl
-                  << "ECore DC Freq " << DCCoreFrequency << std::endl;
+        std::cout << "ECore AC Freq " << ECoreACCoreFrequency << std::endl
+                  << "ECore DC Freq " << ECoreDCCoreFrequency << std::endl;
     }
 GracefulExit:
-    std::cout << std::endl
+     std::cout << std::endl
               << "Return Code " << Ret << std::endl;
     return Ret;
 }
