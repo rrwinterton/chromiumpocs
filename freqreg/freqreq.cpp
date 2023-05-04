@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 
     std::cout << "Frequency Limiter Unit Test:" << std::endl;
     if (argc != 5) {
-     std::cout << "usage: freqreq PCore ACMaxFreq PCore DCMaxFreq ECore ACMaxFreq Ecore DCMaxFreq" << std::endl;
+     std::cout << "usage: freqreq PCoreACMaxFreq PCoreDCMaxFreq ECoreACMaxFreq EcoreDCMaxFreq " << "(use 0 default and for ECore non-hybrid systems)" << std::endl;
      return ERROR_INPUT;
     }
 
