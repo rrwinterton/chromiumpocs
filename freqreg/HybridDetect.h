@@ -1,14 +1,14 @@
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Copyright (c) 2021, Intel Corporation
 // Permission is hereby granted, free of charge, to any person obtaining a   copy of this software and associated
-// documentation files (the "Software"), to deal in the Software without restriction, including without limitation 
+// documentation files (the "Software"), to deal in the Software without restriction, including without limitation
 // the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to
 // permit persons to whom the Software is    furnished to do so, subject to the following conditions:
-// The above copyright notice and this permission notice shall be included in all copies or substantial portions of 
+// The above copyright notice and this permission notice shall be included in all copies or substantial portions of
 // the Software.
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A    PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, 
+// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A    PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
 // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -20,7 +20,7 @@
 #include <intrin.h>
 #include <string>
 #include <windows.h>
-#include <malloc.h>    
+#include <malloc.h>
 #include <stdio.h>
 #include <bitset>
 #include <map>
@@ -33,59 +33,63 @@
 
 #ifdef _WIN32
 // Simple wrapper for __cpuid intrinsic, created for cross platform support e.g. WIN32
-#define CPUID(registers, function) __cpuid((int*)registers, (int)function);
-#define CPUIDEX(registers, function, extFunction) __cpuidex((int*)registers, (int)function, (int)extFunction);
-#else 
+#define CPUID(registers, function) __cpuid((int *)registers, (int)function);
+#define CPUIDEX(registers, function, extFunction) __cpuidex((int *)registers, (int)function, (int)extFunction);
+#else
 // Linux Stuff
-#define CPUID(registers, function) asm volatile ("cpuid" : "=a" (registers[0]), "=b" (registers[1]), "=c" (registers[2]), "=d" (registers[3]) : "a" (function), "c" (0));
-#define CPUIDEX(registers, function, extFunction) asm volatile ("cpuid" : "=a" (registers[0]), "=b" (registers[1]), "=c" (registers[2]), "=d" (registers[3]) : "a" (function), "c" (extFunction));
+#define CPUID(registers, function) asm volatile("cpuid"                                                                          \
+												: "=a"(registers[0]), "=b"(registers[1]), "=c"(registers[2]), "=d"(registers[3]) \
+												: "a"(function), "c"(0));
+#define CPUIDEX(registers, function, extFunction) asm volatile("cpuid"                                                                          \
+															   : "=a"(registers[0]), "=b"(registers[1]), "=c"(registers[2]), "=d"(registers[3]) \
+															   : "a"(function), "c"(extFunction));
 #endif
 
 // Enables/Disables Hybrid Detect
 #define ENABLE_HYBRID_DETECT
 
 // Tells the application to treat the target system as a heterogeneous software proxy.
-//#define ENABLE_SOFTWARE_PROXY	//rrw
+// #define ENABLE_SOFTWARE_PROXY	//rrw
 
 // Enables/Disables Run On API
 #define ENABLE_RUNON
 
 // Enables/Disables ThreadPriority Based on Core-Type
-//#define ENABLE_RUNON_PRIORITY
+// #define ENABLE_RUNON_PRIORITY
 
 // Enables/Disables SetThreadInformation Memory Priority Based on Core-Type
-//#define ENABLE_RUNON_MEMORY_PRIORITY
+// #define ENABLE_RUNON_MEMORY_PRIORITY
 
 // Enables/Disables SetThreadInformation Execution Speed based on Core-Type
-//#define ENABLE_RUNON_EXECUTION_SPEED
+// #define ENABLE_RUNON_EXECUTION_SPEED
 
 // Enables CPU-Sets and Disables ThreadAffinityMasks
 #define ENABLE_CPU_SETS
 
 // Simple conversion from an ordinal, n, to a set bit at position n
-#define IndexToMask(n)  (1UL << n)
+#define IndexToMask(n) (1UL << n)
 
 // Macros to store values for CPUID register ordinals
-#define CPUID_EAX								0
-#define CPUID_EBX								1
-#define CPUID_ECX								2
-#define CPUID_EDX								3
+#define CPUID_EAX 0
+#define CPUID_EBX 1
+#define CPUID_ECX 2
+#define CPUID_EDX 3
 
-#define LEAF_CPUID_BASIC						0x00        // Basic CPUID Information
-#define LEAF_THERMAL_POWER						0x06        // Thermal and Power Management Leaf
-#define LEAF_EXTENDED_FEATURE_FLAGS				0x07        // Structured Extended Feature Flags Enumeration Leaf (Output depends on ECX input value)
-#define LEAF_EXTENDED_STATE						0x0D        // Processor Extended State Enumeration Main Leaf (EAX = 0DH, ECX = 0)
-#define LEAF_FREQUENCY_INFORMATION				0x16        // Processor Frequency Information Leaf  function 0x16 only works on Skylake or newer.
-#define LEAF_HYBRID_INFORMATION					0x1A        // Hybrid Information Sub - leaf(EAX = 1AH, ECX = 0)
-#define LEAF_EXTENDED_INFORMATION_0				0x80000000  // Extended Function CPUID Information
-#define LEAF_EXTENDED_INFORMATION_1				0x80000001  // Extended Function CPUID Information
-#define LEAF_EXTENDED_BRAND_STRING_1			0x80000002  // Extended Function CPUID Information
-#define LEAF_EXTENDED_BRAND_STRING_2			0x80000003  // Extended Function CPUID Information
-#define LEAF_EXTENDED_BRAND_STRING_3			0x80000004  // Extended Function CPUID Information
-#define LEAF_EXTENDED_INFORMATION_5				0x80000005  // Extended Function CPUID Information
-#define LEAF_EXTENDED_INFORMATION_6				0x80000006  // Extended Function CPUID Information
-#define LEAF_EXTENDED_INFORMATION_7				0x80000007  // Extended Function CPUID Information
-#define LEAF_EXTENDED_INFORMATION_8				0x80000008  // Extended Function CPUID Information
+#define LEAF_CPUID_BASIC 0x00					// Basic CPUID Information
+#define LEAF_THERMAL_POWER 0x06					// Thermal and Power Management Leaf
+#define LEAF_EXTENDED_FEATURE_FLAGS 0x07		// Structured Extended Feature Flags Enumeration Leaf (Output depends on ECX input value)
+#define LEAF_EXTENDED_STATE 0x0D				// Processor Extended State Enumeration Main Leaf (EAX = 0DH, ECX = 0)
+#define LEAF_FREQUENCY_INFORMATION 0x16			// Processor Frequency Information Leaf  function 0x16 only works on Skylake or newer.
+#define LEAF_HYBRID_INFORMATION 0x1A			// Hybrid Information Sub - leaf(EAX = 1AH, ECX = 0)
+#define LEAF_EXTENDED_INFORMATION_0 0x80000000	// Extended Function CPUID Information
+#define LEAF_EXTENDED_INFORMATION_1 0x80000001	// Extended Function CPUID Information
+#define LEAF_EXTENDED_BRAND_STRING_1 0x80000002 // Extended Function CPUID Information
+#define LEAF_EXTENDED_BRAND_STRING_2 0x80000003 // Extended Function CPUID Information
+#define LEAF_EXTENDED_BRAND_STRING_3 0x80000004 // Extended Function CPUID Information
+#define LEAF_EXTENDED_INFORMATION_5 0x80000005	// Extended Function CPUID Information
+#define LEAF_EXTENDED_INFORMATION_6 0x80000006	// Extended Function CPUID Information
+#define LEAF_EXTENDED_INFORMATION_7 0x80000007	// Extended Function CPUID Information
+#define LEAF_EXTENDED_INFORMATION_8 0x80000008	// Extended Function CPUID Information
 
 enum CoreTypes
 {
@@ -101,129 +105,130 @@ enum CoreTypes
 // Struct to store information for each Cache.
 typedef struct _CACHE_INFO
 {
-	unsigned                            group = 0;
-	std::bitset<64>						processorMask = 0;
-	unsigned							level = 0;
-	unsigned							size = 0;
-	unsigned							lineSize = 0;
-	unsigned							type = 0;
-	unsigned							associativity = 0;
-} CACHE_INFO, * PCACHE_INFO;
+	unsigned group = 0;
+	std::bitset<64> processorMask = 0;
+	unsigned level = 0;
+	unsigned size = 0;
+	unsigned lineSize = 0;
+	unsigned type = 0;
+	unsigned associativity = 0;
+} CACHE_INFO, *PCACHE_INFO;
 
 // Struct to store Power information for a logical processor.
-typedef struct _LOGICAL_PROCESSOR_POWER_INFORMATION {
-	ULONG								number = 0;
-	ULONG								maxMhz = 0;
-	ULONG								currentMhz = 0;
-	ULONG								mhzLimit = 0;
-	ULONG								maxIdleState = 0;
-	ULONG								currentIdleState = 0;
-} LOGICAL_PROCESSOR_POWER_INFORMATION, * PLOGICAL_PROCESSOR_POWER_INFORMATION;
+typedef struct _LOGICAL_PROCESSOR_POWER_INFORMATION
+{
+	ULONG number = 0;
+	ULONG maxMhz = 0;
+	ULONG currentMhz = 0;
+	ULONG mhzLimit = 0;
+	ULONG maxIdleState = 0;
+	ULONG currentIdleState = 0;
+} LOGICAL_PROCESSOR_POWER_INFORMATION, *PLOGICAL_PROCESSOR_POWER_INFORMATION;
 
 // Struct to store Power information for a logical processor.
 typedef struct _LOGICAL_PROCESSOR_INFO
 {
-	unsigned							id = 0;
-	unsigned							group = 0;
-	unsigned							node = 0;
-	unsigned							coreIndex = 0;
-	unsigned							logicalProcessorIndex = 0;
-	std::bitset<64>						processorMask = 0;
-	unsigned							baseFrequency = 0;
-	unsigned							currentFrequency = 0;
-	unsigned							maximumFrequency = 0;
-	unsigned							busFrequency = 0;
-	unsigned							SSE : 1;
-	unsigned							AVX : 1;
-	unsigned							AVX2 : 1;
-	unsigned							AVX512 : 1;
-	unsigned							AVX512F : 1;
-	unsigned							AVX512DQ : 1;
-	unsigned							AVX512PF : 1;
-	unsigned							AVX512ER : 1;
-	unsigned							AVX512CD : 1;
-	unsigned							AVX512BW : 1;
-	unsigned							AVX512VL : 1;
-	unsigned							AVX512_IFMA : 1;
-	unsigned							AVX512_VBMI : 1;
-	unsigned							AVX512_VBMI2 : 1;
-	unsigned							AVX512_VNNI : 1;
-	unsigned							AVX512_BITALG : 1;
-	unsigned							AVX512_VPOPCNTDQ : 1;
-	unsigned							AVX512_4VNNIW : 1;
-	unsigned							AVX512_4FMAPS : 1;
-	unsigned							AVX512_VP2INTERSECT : 1;
-	unsigned							SGX : 1;
-	unsigned							SHA : 1;
-	unsigned							parked : 1;
-	unsigned							allocated : 1;
-	unsigned							allocatedToTargetProcess : 1;
-	unsigned							realTime : 1;
-	ULONG64								allocationTag = 0;
-	unsigned							efficiencyClass = 0;
-	unsigned							schedulingClass = 0;
-	CoreTypes							coreType = CoreTypes::NONE;
+	unsigned id = 0;
+	unsigned group = 0;
+	unsigned node = 0;
+	unsigned coreIndex = 0;
+	unsigned logicalProcessorIndex = 0;
+	std::bitset<64> processorMask = 0;
+	unsigned baseFrequency = 0;
+	unsigned currentFrequency = 0;
+	unsigned maximumFrequency = 0;
+	unsigned busFrequency = 0;
+	unsigned SSE : 1;
+	unsigned AVX : 1;
+	unsigned AVX2 : 1;
+	unsigned AVX512 : 1;
+	unsigned AVX512F : 1;
+	unsigned AVX512DQ : 1;
+	unsigned AVX512PF : 1;
+	unsigned AVX512ER : 1;
+	unsigned AVX512CD : 1;
+	unsigned AVX512BW : 1;
+	unsigned AVX512VL : 1;
+	unsigned AVX512_IFMA : 1;
+	unsigned AVX512_VBMI : 1;
+	unsigned AVX512_VBMI2 : 1;
+	unsigned AVX512_VNNI : 1;
+	unsigned AVX512_BITALG : 1;
+	unsigned AVX512_VPOPCNTDQ : 1;
+	unsigned AVX512_4VNNIW : 1;
+	unsigned AVX512_4FMAPS : 1;
+	unsigned AVX512_VP2INTERSECT : 1;
+	unsigned SGX : 1;
+	unsigned SHA : 1;
+	unsigned parked : 1;
+	unsigned allocated : 1;
+	unsigned allocatedToTargetProcess : 1;
+	unsigned realTime : 1;
+	ULONG64 allocationTag = 0;
+	unsigned efficiencyClass = 0;
+	unsigned schedulingClass = 0;
+	CoreTypes coreType = CoreTypes::NONE;
 	LOGICAL_PROCESSOR_POWER_INFORMATION powerInformation;
-} LOGICAL_PROCESSOR_INFO, * PLOGICAL_PROCESSOR_INFO;
+} LOGICAL_PROCESSOR_INFO, *PLOGICAL_PROCESSOR_INFO;
 
 typedef struct _GROUP_INFO
 {
-	unsigned							activeGroupCount = 0;
-	unsigned							maximumGroupCount = 0;
-	unsigned							activeProcessorCount = 0;
-	unsigned							maximumProcessorCount = 0;
-	ULONG64								activeProcessorMask = 0;
-}	GROUP_INFO, * PGROUP_INFO;
+	unsigned activeGroupCount = 0;
+	unsigned maximumGroupCount = 0;
+	unsigned activeProcessorCount = 0;
+	unsigned maximumProcessorCount = 0;
+	ULONG64 activeProcessorMask = 0;
+} GROUP_INFO, *PGROUP_INFO;
 
 typedef struct _NUMA_NODE_INFO
 {
-	unsigned							nodeNumber = 0;
-	unsigned							group = 0;
-	ULONG64								mask = 0;
-}	NUMA_NODE_INFO, * PNUMA_NODE_INFO;
+	unsigned nodeNumber = 0;
+	unsigned group = 0;
+	ULONG64 mask = 0;
+} NUMA_NODE_INFO, *PNUMA_NODE_INFO;
 
 // Struct to store Processor information
 typedef struct _PROCESSOR_INFO
 {
-	char								vendorID[13];
-	char								brandString[64];
-	unsigned							numGroups = 0;
-	unsigned							numNUMANodes = 0;
-	unsigned							numProcessorPackages = 0;
-	unsigned							numPhysicalCores = 0;
-	unsigned							numLogicalCores = 0;
-	unsigned							numL1Caches = 0;
-	unsigned							numL2Caches = 0;
-	unsigned							numL3Caches = 0;
-	bool								hybrid = false;
-	bool								turboBoost = false;
-	bool								turboBoost3_0 = false;
-	std::vector<GROUP_INFO>				groups;
-	std::vector<NUMA_NODE_INFO>			nodes;
-	std::vector<CACHE_INFO>				caches;
-	std::vector<LOGICAL_PROCESSOR_INFO>	cores;
+	char vendorID[13];
+	char brandString[64];
+	unsigned numGroups = 0;
+	unsigned numNUMANodes = 0;
+	unsigned numProcessorPackages = 0;
+	unsigned numPhysicalCores = 0;
+	unsigned numLogicalCores = 0;
+	unsigned numL1Caches = 0;
+	unsigned numL2Caches = 0;
+	unsigned numL3Caches = 0;
+	bool hybrid = false;
+	bool turboBoost = false;
+	bool turboBoost3_0 = false;
+	std::vector<GROUP_INFO> groups;
+	std::vector<NUMA_NODE_INFO> nodes;
+	std::vector<CACHE_INFO> caches;
+	std::vector<LOGICAL_PROCESSOR_INFO> cores;
 
-	// Store map of logical processors returned from GLPI. 
-	// short = Core Type, ULONG64 = 64-bit processor mask 
-	std::map<short, ULONG64>			coreMasks;
+	// Store map of logical processors returned from GLPI.
+	// short = Core Type, ULONG64 = 64-bit processor mask
+	std::map<short, ULONG64> coreMasks;
 #ifdef ENABLE_CPU_SETS
 
-	// Store map of logical processors returned from GetSystemCPUSetInformation. 
-	// unsined custom logical cluster key, use short to store EffeciencyClass as a key 
-	// std::vector<ULONG> = list of CPU Set IDs 
-	std::map<unsigned, std::vector<ULONG>>	cpuSets;
+	// Store map of logical processors returned from GetSystemCPUSetInformation.
+	// unsined custom logical cluster key, use short to store EffeciencyClass as a key
+	// std::vector<ULONG> = list of CPU Set IDs
+	std::map<unsigned, std::vector<ULONG>> cpuSets;
 
 #endif
-	unsigned							osMajorVersion;
-	unsigned							osMinorVersion;
-	unsigned							osBuildNumber;
-	const bool IsIntel()    const { return !strcmp("GenuineIntel", vendorID); }
-	const bool IsAMD()      const { return !strcmp("AuthenticAMD", vendorID); }
+	unsigned osMajorVersion;
+	unsigned osMinorVersion;
+	unsigned osBuildNumber;
+	const bool IsIntel() const { return !strcmp("GenuineIntel", vendorID); }
+	const bool IsAMD() const { return !strcmp("AuthenticAMD", vendorID); }
 
 	inline int GetCoreTypeCount(CoreTypes coreType)
 	{
 #ifdef ENABLE_CPU_SETS
-		return (int ) cpuSets[coreType].size();
+		return (int)cpuSets[coreType].size();
 #else
 		std::bitset<64> bits = coreMasks[coreType];
 
@@ -231,10 +236,10 @@ typedef struct _PROCESSOR_INFO
 #endif
 	}
 
-} PROCESSOR_INFO, * PPROCESSOR_INFO;
+} PROCESSOR_INFO, *PPROCESSOR_INFO;
 
 // Type to String Conversion Helper Function
-inline const char* CoreTypeString(CoreTypes type)
+inline const char *CoreTypeString(CoreTypes type)
 {
 	switch (type)
 	{
@@ -253,7 +258,7 @@ inline const char* CoreTypeString(CoreTypes type)
 }
 
 // Cache to String Conversion Helper Function
-inline const char* CacheTypeString(int type)
+inline const char *CacheTypeString(int type)
 {
 	switch (type)
 	{
@@ -270,17 +275,18 @@ inline const char* CacheTypeString(int type)
 }
 
 // Helper function to Call the CPUID intrinsic
-inline bool CallCPUID(unsigned function, std::array<unsigned, 4>& registers, unsigned extFunction = 0, unsigned CPUIDFunctionMax = LEAF_EXTENDED_INFORMATION_8)
+inline bool CallCPUID(unsigned function, std::array<unsigned, 4> &registers, unsigned extFunction = 0, unsigned CPUIDFunctionMax = LEAF_EXTENDED_INFORMATION_8)
 {
-	if (function > CPUIDFunctionMax) return false;
+	if (function > CPUIDFunctionMax)
+		return false;
 	CPUIDEX(registers.data(), function, extFunction);
 	return true;
 }
 
-template<typename T>
-T* AdvanceBytes(T* p, SIZE_T cb)
+template <typename T>
+T *AdvanceBytes(T *p, SIZE_T cb)
 {
-	return reinterpret_cast<T*>(reinterpret_cast<BYTE*>(p) + cb);
+	return reinterpret_cast<T *>(reinterpret_cast<BYTE *>(p) + cb);
 }
 
 class EnumLogicalProcessorInformation
@@ -292,44 +298,52 @@ public:
 	{
 		DWORD cb = 0;
 		if (GetLogicalProcessorInformationEx(Relationship,
-			nullptr, &cb)) return;
-		if (GetLastError() != ERROR_INSUFFICIENT_BUFFER) return;
+											 nullptr, &cb))
+			return;
+		if (GetLastError() != ERROR_INSUFFICIENT_BUFFER)
+			return;
 		m_pinfoBase =
-			reinterpret_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX*>
-			(LocalAlloc(LMEM_FIXED, cb));
-		if (!m_pinfoBase) return;
+			reinterpret_cast<SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *>(LocalAlloc(LMEM_FIXED, cb));
+		if (!m_pinfoBase)
+			return;
 		if (!GetLogicalProcessorInformationEx(Relationship,
-			m_pinfoBase, &cb)) return;
+											  m_pinfoBase, &cb))
+			return;
 		m_pinfoCurrent = m_pinfoBase;
 		m_cbRemaining = cb;
 	}
 	~EnumLogicalProcessorInformation() { LocalFree(m_pinfoBase); }
 	void MoveNext()
 	{
-		if (m_pinfoCurrent) {
+		if (m_pinfoCurrent)
+		{
 			m_cbRemaining -= m_pinfoCurrent->Size;
-			if (m_cbRemaining) {
+			if (m_cbRemaining)
+			{
 				m_pinfoCurrent = AdvanceBytes(m_pinfoCurrent,
-					m_pinfoCurrent->Size);
+											  m_pinfoCurrent->Size);
 			}
-			else {
+			else
+			{
 				m_pinfoCurrent = nullptr;
 			}
 		}
 	}
-	SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX* Current()
+	SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *Current()
 	{
 		return m_pinfoCurrent;
 	}
+
 private:
-	SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX* m_pinfoBase;
-	SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX* m_pinfoCurrent;
+	SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *m_pinfoBase;
+	SYSTEM_LOGICAL_PROCESSOR_INFORMATION_EX *m_pinfoCurrent;
 	DWORD m_cbRemaining;
 };
 
 inline void PrintMask(KAFFINITY Mask)
 {
-	for (int i = (sizeof(Mask) * 8) - 1; i >= 0; i--) {
+	for (int i = (sizeof(Mask) * 8) - 1; i >= 0; i--)
+	{
 		if (Mask & (static_cast<KAFFINITY>(1) << i))
 			printf("%d", 1);
 		else
@@ -350,21 +364,21 @@ inline bool IsHybridOSEx()
 	versionInfo.dwMajorVersion = 10;
 	versionInfo.dwMinorVersion = 0;
 	versionInfo.dwBuildNumber = 22000;
-	//versionInfo.wServicePackMajor = 0;
-	//versionInfo.wServicePackMinor = 0;
+	// versionInfo.wServicePackMajor = 0;
+	// versionInfo.wServicePackMinor = 0;
 
 	VER_SET_CONDITION(conditionMask, VER_MAJORVERSION, operation);
 	VER_SET_CONDITION(conditionMask, VER_MINORVERSION, operation);
 	VER_SET_CONDITION(conditionMask, VER_BUILDNUMBER, operation);
-	//VER_SET_CONDITION(conditionMask, VER_SERVICEPACKMAJOR, operation);
-	//VER_SET_CONDITION(conditionMask, VER_SERVICEPACKMINOR, operation);
+	// VER_SET_CONDITION(conditionMask, VER_SERVICEPACKMAJOR, operation);
+	// VER_SET_CONDITION(conditionMask, VER_SERVICEPACKMINOR, operation);
 
 	return VerifyVersionInfo(&versionInfo,
-		VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, conditionMask);
+							 VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER, conditionMask);
 }
 
 // Calls CPUID & GetLogicalProcessors to fill in PROCESSOR_INFO Caches & Cores
-inline bool GetLogicalProcessors(PROCESSOR_INFO& procInfo)
+inline bool GetLogicalProcessors(PROCESSOR_INFO &procInfo)
 {
 #ifdef ENABLE_HYBRID_DETECT
 #ifdef ENABLE_CPU_SETS
@@ -380,17 +394,17 @@ inline bool GetLogicalProcessors(PROCESSOR_INFO& procInfo)
 	PSYSTEM_CPU_SET_INFORMATION cpuSets = reinterpret_cast<PSYSTEM_CPU_SET_INFORMATION>(buffer.get());
 	PSYSTEM_CPU_SET_INFORMATION nextCPUSet;
 
-	// Get all of the CPUSet elements 
+	// Get all of the CPUSet elements
 	GetSystemCpuSetInformation(cpuSets, size, &size, curProc, 0);
 
 	nextCPUSet = cpuSets;
 
 	// Iterate through each logical processor.
 	for (DWORD offset = 0;
-		offset + sizeof(SYSTEM_CPU_SET_INFORMATION) <= size;
-		offset += sizeof(SYSTEM_CPU_SET_INFORMATION), nextCPUSet++)
+		 offset + sizeof(SYSTEM_CPU_SET_INFORMATION) <= size;
+		 offset += sizeof(SYSTEM_CPU_SET_INFORMATION), nextCPUSet++)
 	{
-		// Make sure CPU Set Type is valid. 
+		// Make sure CPU Set Type is valid.
 		if (nextCPUSet->Type == CPU_SET_INFORMATION_TYPE::CpuSetInformation)
 		{
 			// Store Logical Processor Information for Later Use.
@@ -428,7 +442,7 @@ inline bool GetLogicalProcessors(PROCESSOR_INFO& procInfo)
 		{
 			if (GetLastError() == ERROR_INSUFFICIENT_BUFFER)
 			{
-				//TODO: need hooks for malloc/free
+				// TODO: need hooks for malloc/free
 				if (procInfoStart)
 					free(procInfoStart);
 
@@ -472,22 +486,22 @@ inline bool GetLogicalProcessors(PROCESSOR_INFO& procInfo)
 		}
 	}
 
-	//TODO: need hooks for malloc/free
+	// TODO: need hooks for malloc/free
 	free(procInfoStart);
 	return true;
 #endif
 #else
 	return false;
 #endif
-
 }
 
 // Calls CPUID & GetLogicalProcessors to fill in PROCESSOR_INFO Caches & Cores
-inline bool GetLogicalProcessorsEx(PROCESSOR_INFO& procInfo)
+inline bool GetLogicalProcessorsEx(PROCESSOR_INFO &procInfo)
 {
 #ifdef ENABLE_HYBRID_DETECT
 	for (EnumLogicalProcessorInformation enumInfo(RelationGroup);
-		auto pinfo = enumInfo.Current(); enumInfo.MoveNext()) {
+		 auto pinfo = enumInfo.Current(); enumInfo.MoveNext())
+	{
 		GROUP_INFO group;
 		procInfo.numGroups++;
 		group.activeGroupCount = pinfo->Group.ActiveGroupCount;
@@ -499,7 +513,8 @@ inline bool GetLogicalProcessorsEx(PROCESSOR_INFO& procInfo)
 	}
 
 	for (EnumLogicalProcessorInformation enumInfo(RelationNumaNode);
-		auto pinfo = enumInfo.Current(); enumInfo.MoveNext()) {
+		 auto pinfo = enumInfo.Current(); enumInfo.MoveNext())
+	{
 		NUMA_NODE_INFO node;
 		procInfo.numNUMANodes++;
 		node.nodeNumber = pinfo->NumaNode.NodeNumber;
@@ -509,18 +524,27 @@ inline bool GetLogicalProcessorsEx(PROCESSOR_INFO& procInfo)
 	}
 
 	for (EnumLogicalProcessorInformation enumInfo(RelationProcessorCore);
-		auto pinfo = enumInfo.Current(); enumInfo.MoveNext()) {
+		 auto pinfo = enumInfo.Current(); enumInfo.MoveNext())
+	{
 		procInfo.numPhysicalCores++;
 	}
 
 	for (EnumLogicalProcessorInformation enumInfo(RelationCache);
-		auto pinfo = enumInfo.Current(); enumInfo.MoveNext()) {
+		 auto pinfo = enumInfo.Current(); enumInfo.MoveNext())
+	{
 		CACHE_INFO cacheInfo;
 
-		switch (pinfo->Cache.Level) {
-		case 1: procInfo.numL1Caches++; break;
-		case 2: procInfo.numL2Caches++; break;
-		case 3: procInfo.numL3Caches++; break;
+		switch (pinfo->Cache.Level)
+		{
+		case 1:
+			procInfo.numL1Caches++;
+			break;
+		case 2:
+			procInfo.numL2Caches++;
+			break;
+		case 3:
+			procInfo.numL3Caches++;
+			break;
 		}
 
 		cacheInfo.group = pinfo->Cache.GroupMask.Group;
@@ -539,7 +563,7 @@ inline bool GetLogicalProcessorsEx(PROCESSOR_INFO& procInfo)
 #endif
 }
 
-inline void UpdateProcessorInfo(PROCESSOR_INFO& procInfo)
+inline void UpdateProcessorInfo(PROCESSOR_INFO &procInfo)
 {
 	// TODO: Not sure how this works with processor groups
 	// Query Current Frequency for each Logical Processor using CallNTPowerInformation
@@ -556,21 +580,21 @@ inline void UpdateProcessorInfo(PROCESSOR_INFO& procInfo)
 }
 
 // Calls CPUID & GetLogicalProcessors & CallNTPowerInformation to fill in PROCESSOR_INFO
-inline void GetProcessorInfo(PROCESSOR_INFO& procInfo)
+inline void GetProcessorInfo(PROCESSOR_INFO &procInfo)
 {
 #ifdef ENABLE_HYBRID_DETECT
 	// https://software.intel.com/content/www/us/en/develop/download/intel-architecture-instruction-set-extensions-programming-reference.html
 
-		// Store registers from CPUID
-	std::array<unsigned, 4>  cpuInfo;
+	// Store registers from CPUID
+	std::array<unsigned, 4> cpuInfo;
 
 	// Maximum leaf ordinal Reported by CPUID
-	unsigned            CPUIDFunctionMax;
+	unsigned CPUIDFunctionMax;
 
-	DWORD_PTR           affinityMask;
-	DWORD_PTR           processAffinityMask;
-	DWORD_PTR           sysAffinityMask;
-	std::bitset<32>     bits;
+	DWORD_PTR affinityMask;
+	DWORD_PTR processAffinityMask;
+	DWORD_PTR sysAffinityMask;
+	std::bitset<32> bits;
 
 	procInfo.coreMasks.emplace(CoreTypes::ANY, 0);
 	procInfo.coreMasks.emplace(CoreTypes::NONE, 0);
@@ -588,7 +612,7 @@ inline void GetProcessorInfo(PROCESSOR_INFO& procInfo)
 	procInfo.cpuSets.emplace(CoreTypes::INTEL_CORE, std::vector<ULONG>());
 #endif
 
-	//Basic CPUID Information
+	// Basic CPUID Information
 	CallCPUID(LEAF_CPUID_BASIC, cpuInfo);
 
 	// Store highest function number.
@@ -608,7 +632,7 @@ inline void GetProcessorInfo(PROCESSOR_INFO& procInfo)
 	CallCPUID(LEAF_EXTENDED_BRAND_STRING_3, cpuInfo);
 	memcpy(procInfo.brandString + 32, cpuInfo.data(), sizeof(cpuInfo));
 
-	// Structured Extended Feature Flags Enumeration Leaf 
+	// Structured Extended Feature Flags Enumeration Leaf
 	// (Output depends on ECX input value)
 	CallCPUID(LEAF_EXTENDED_FEATURE_FLAGS, cpuInfo);
 	{
@@ -657,18 +681,18 @@ inline void GetProcessorInfo(PROCESSOR_INFO& procInfo)
 			{
 				// Logical Processor Info struct for storage.
 #ifdef ENABLE_CPU_SETS
-				LOGICAL_PROCESSOR_INFO& logicalCore = procInfo.cores[core];
+				LOGICAL_PROCESSOR_INFO &logicalCore = procInfo.cores[core];
 #else
-				LOGICAL_PROCESSOR_INFO					logicalCore;
+				LOGICAL_PROCESSOR_INFO logicalCore;
 				logicalCore.logicalProcessorIndex = core;
 #endif
 				// Get the ID of the current processor;
-				int                                     prevProcessor = GetCurrentProcessorNumber();
+				int prevProcessor = GetCurrentProcessorNumber();
 
 				// Convert the oridinal position to an affinity mask.
 				affinityMask = (DWORD)IndexToMask(core);
 
-				// Thread Affinity Mask is enough to switch to current thread immediatlely. 
+				// Thread Affinity Mask is enough to switch to current thread immediatlely.
 				SetThreadAffinityMask(GetCurrentThread(), processAffinityMask & affinityMask);
 
 				logicalCore.processorMask = std::bitset<64>(affinityMask);
@@ -733,7 +757,7 @@ inline void GetProcessorInfo(PROCESSOR_INFO& procInfo)
 				CallCPUID(LEAF_HYBRID_INFORMATION, cpuInfo);
 				{
 #ifndef ENABLE_SOFTWARE_PROXY
-					std::bitset<8> coreTypeBits;    // Bits 31 - 24: Core type
+					std::bitset<8> coreTypeBits; // Bits 31 - 24: Core type
 					bits = cpuInfo[CPUID_EAX];
 					coreTypeBits[0] = bits[24];
 					coreTypeBits[1] = bits[25];
@@ -761,7 +785,7 @@ inline void GetProcessorInfo(PROCESSOR_INFO& procInfo)
 						logicalCore.coreType = (core < (procInfo.numLogicalCores / 2) ? CoreTypes::INTEL_CORE : CoreTypes::INTEL_ATOM);
 
 						// Useful for Testing Asymetric Hybrid Configurations (2+8 (4 HT Cores + 8 Atom Cores)
-						//logicalCore.coreType = (core < 4 ? CoreTypes::INTEL_CORE : CoreTypes::INTEL_ATOM);
+						// logicalCore.coreType = (core < 4 ? CoreTypes::INTEL_CORE : CoreTypes::INTEL_ATOM);
 					}
 #endif
 				}
@@ -778,10 +802,8 @@ inline void GetProcessorInfo(PROCESSOR_INFO& procInfo)
 #else
 				procInfo.cores.push_back(logicalCore);
 #endif
-				//pwrInfo.clear();
+				// pwrInfo.clear();
 			}
-
-			
 
 			// Reset Group Affinity
 			SetThreadGroupAffinity(GetCurrentThread(), &prevGroup, nullptr);
@@ -801,7 +823,7 @@ inline bool SetMemoryPriority(HANDLE threadHandle, UINT memoryPriority)
 	memoryPriorityInfo.MemoryPriority = memoryPriority;
 
 	return SetThreadInformation(threadHandle, ThreadMemoryPriority,
-		&memoryPriorityInfo, sizeof(memoryPriorityInfo));
+								&memoryPriorityInfo, sizeof(memoryPriorityInfo));
 }
 
 inline bool EnablePowerThrottling(HANDLE threadHandle)
@@ -814,7 +836,7 @@ inline bool EnablePowerThrottling(HANDLE threadHandle)
 	throttlingState.StateMask = THREAD_POWER_THROTTLING_EXECUTION_SPEED;
 
 	return SetThreadInformation(threadHandle, ThreadPowerThrottling,
-		&throttlingState, sizeof(throttlingState));
+								&throttlingState, sizeof(throttlingState));
 }
 
 inline bool DisablePowerThrottling(HANDLE threadHandle)
@@ -827,7 +849,7 @@ inline bool DisablePowerThrottling(HANDLE threadHandle)
 	throttlingState.StateMask = 0;
 
 	return SetThreadInformation(threadHandle, ThreadPowerThrottling,
-		&throttlingState, sizeof(throttlingState));
+								&throttlingState, sizeof(throttlingState));
 }
 
 inline bool AutoPowerThrottling(HANDLE threadHandle)
@@ -840,17 +862,17 @@ inline bool AutoPowerThrottling(HANDLE threadHandle)
 	throttlingState.StateMask = 0;
 
 	return SetThreadInformation(threadHandle, ThreadPowerThrottling,
-		&throttlingState, sizeof(throttlingState));
+								&throttlingState, sizeof(throttlingState));
 }
 
 #ifdef ENABLE_CPU_SETS
 
-inline short RunOnCPUSet(PROCESSOR_INFO& procInfo, HANDLE threadHandle, std::vector<ULONG> cpuSet, std::vector<ULONG> fallbackSet = {})
+inline short RunOnCPUSet(PROCESSOR_INFO &procInfo, HANDLE threadHandle, std::vector<ULONG> cpuSet, std::vector<ULONG> fallbackSet = {})
 {
 #ifdef ENABLE_RUNON
 	if (cpuSet.size() > 0)
 	{
-		if (SetThreadSelectedCpuSets(threadHandle, &cpuSet[0], (int ) cpuSet.size()))
+		if (SetThreadSelectedCpuSets(threadHandle, &cpuSet[0], (int)cpuSet.size()))
 		{
 			return 1;
 		}
@@ -858,7 +880,7 @@ inline short RunOnCPUSet(PROCESSOR_INFO& procInfo, HANDLE threadHandle, std::vec
 
 	if (fallbackSet.size() > 0)
 	{
-		if (SetThreadSelectedCpuSets(threadHandle, &fallbackSet[0], (int ) fallbackSet.size()))
+		if (SetThreadSelectedCpuSets(threadHandle, &fallbackSet[0], (int)fallbackSet.size()))
 		{
 			return 0;
 		}
@@ -868,7 +890,7 @@ inline short RunOnCPUSet(PROCESSOR_INFO& procInfo, HANDLE threadHandle, std::vec
 
 	if (anySet.size() > 0)
 	{
-		if (SetThreadSelectedCpuSets(threadHandle, &anySet[0], (int ) anySet.size()))
+		if (SetThreadSelectedCpuSets(threadHandle, &anySet[0], (int)anySet.size()))
 		{
 			return -1;
 		}
@@ -879,7 +901,7 @@ inline short RunOnCPUSet(PROCESSOR_INFO& procInfo, HANDLE threadHandle, std::vec
 }
 
 // Run A Thread On the Atom or Core Logical Processor Cluster
-inline short RunOn(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const CoreTypes type, const std::vector<ULONG> fallbackSet = {})
+inline short RunOn(PROCESSOR_INFO &procInfo, HANDLE threadHandle, const CoreTypes type, const std::vector<ULONG> fallbackSet = {})
 {
 #ifdef ENABLE_RUNON_PRIORITY
 	switch (type)
@@ -927,7 +949,7 @@ inline short RunOn(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const CoreType
 #endif
 
 #ifdef ENABLE_RUNON
-	//assert(procInfo.coreMasks.size());
+	// assert(procInfo.coreMasks.size());
 
 	if (procInfo.cpuSets.size() > 0)
 	{
@@ -942,7 +964,7 @@ inline short RunOn(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const CoreType
 }
 
 // Run The Current Thread On Atom or Core Logical Processor Cluster
-inline short RunOn(PROCESSOR_INFO& procInfo, const CoreTypes type, const std::vector<ULONG> fallbackSet = {})
+inline short RunOn(PROCESSOR_INFO &procInfo, const CoreTypes type, const std::vector<ULONG> fallbackSet = {})
 {
 #ifdef ENABLE_RUNON
 	HANDLE threadHandle = GetCurrentThread();
@@ -953,17 +975,17 @@ inline short RunOn(PROCESSOR_INFO& procInfo, const CoreTypes type, const std::ve
 }
 
 // Run A Thread On Any Logical Processor
-inline short RunOnAny(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const std::vector<ULONG> fallbackSet = {})
+inline short RunOnAny(PROCESSOR_INFO &procInfo, HANDLE threadHandle, const std::vector<ULONG> fallbackSet = {})
 {
 #ifdef ENABLE_RUNON
 	return RunOn(procInfo, threadHandle, CoreTypes::ANY, fallbackSet);
 #else
 	return 0;
-#endif 
+#endif
 }
 
 // Run The Current Thread On Any Logical Processor
-inline short RunOnAny(PROCESSOR_INFO& procInfo, const std::vector<ULONG> fallbackSet = {})
+inline short RunOnAny(PROCESSOR_INFO &procInfo, const std::vector<ULONG> fallbackSet = {})
 {
 #ifdef ENABLE_RUNON
 	HANDLE threadHandle = GetCurrentThread();
@@ -974,7 +996,7 @@ inline short RunOnAny(PROCESSOR_INFO& procInfo, const std::vector<ULONG> fallbac
 }
 
 // Run A Thread On One Logical Processor
-inline short RunOnOne(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const short coreID, const std::vector<ULONG> fallbackSet = {})
+inline short RunOnOne(PROCESSOR_INFO &procInfo, HANDLE threadHandle, const short coreID, const std::vector<ULONG> fallbackSet = {})
 {
 #ifdef ENABLE_RUNON
 	bool succeeded = false;
@@ -983,17 +1005,18 @@ inline short RunOnOne(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const short
 	// Where are we starting? [Inferno]
 	int startedOn = GetCurrentProcessorNumber();
 #endif
-	if ((unsigned int) coreID < procInfo.numLogicalCores)
+	if ((unsigned int)coreID < procInfo.numLogicalCores)
 	{
-		std::vector<ULONG> coreSet = { procInfo.cores[coreID].id };
+		std::vector<ULONG> coreSet = {procInfo.cores[coreID].id};
 		short succeeded = RunOnCPUSet(procInfo, threadHandle, coreSet, fallbackSet);
 
 #ifdef _DEBUG
 		// Check to see if the core is masked
 		int iterations = 0;
 		int runningOn = -1;
-		do {
-			// Surrender time-slice 
+		do
+		{
+			// Surrender time-slice
 			Sleep(0);
 			// Where Are We?
 			runningOn = GetCurrentProcessorNumber();
@@ -1003,12 +1026,12 @@ inline short RunOnOne(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const short
 		} while (runningOn != coreID);
 		// Assert In Debug
 		assert(runningOn == coreID);
-		//Where did we land?
+		// Where did we land?
 		int finishedOn = GetCurrentProcessorNumber();
 
 		// Did we finish where we wanted?
 		assert(runningOn == finishedOn);
-#endif       
+#endif
 
 		return succeeded;
 	}
@@ -1020,7 +1043,7 @@ inline short RunOnOne(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const short
 }
 
 // Run The Current Thread On One Logical Processor
-inline bool RunOnOne(PROCESSOR_INFO& procInfo, const short coreID, const std::vector<ULONG> fallbackSet = {})
+inline bool RunOnOne(PROCESSOR_INFO &procInfo, const short coreID, const std::vector<ULONG> fallbackSet = {})
 {
 #ifdef ENABLE_RUNON
 	HANDLE threadHandle = GetCurrentThread();
@@ -1033,19 +1056,19 @@ inline bool RunOnOne(PROCESSOR_INFO& procInfo, const short coreID, const std::ve
 #else
 
 // Run A Current Thread On A Custom Logical Processor Cluster
-inline short RunOnMask(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const ULONG64 mask, const ULONG64 fallbackMask = 0xffffffff)
+inline short RunOnMask(PROCESSOR_INFO &procInfo, HANDLE threadHandle, const ULONG64 mask, const ULONG64 fallbackMask = 0xffffffff)
 {
 #ifdef ENABLE_RUNON
-	DWORD_PTR  processAffinityMask;
-	DWORD_PTR  systemAffinityMask;
+	DWORD_PTR processAffinityMask;
+	DWORD_PTR systemAffinityMask;
 
 	// Get the system and process affinity mask
 	GetProcessAffinityMask(GetCurrentProcess(), &processAffinityMask, &systemAffinityMask);
 
 	ULONG64 threadAffinityMask = mask;
 
-	//assert((systemAffinityMask & threadAffinityMask));
-	//assert((processAffinityMask & threadAffinityMask));
+	// assert((systemAffinityMask & threadAffinityMask));
+	// assert((processAffinityMask & threadAffinityMask));
 
 	// Is the thread-mask allowed in this system/process?
 	if ((systemAffinityMask & threadAffinityMask) && (processAffinityMask & threadAffinityMask))
@@ -1055,8 +1078,8 @@ inline short RunOnMask(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const ULON
 		return 1;
 	}
 
-	//assert(systemAffinityMask & fallbackMask);
-	//assert(processAffinityMask & fallbackMask);
+	// assert(systemAffinityMask & fallbackMask);
+	// assert(processAffinityMask & fallbackMask);
 
 	// Is fall-back thread-mask allowed in this system/process?
 	if ((systemAffinityMask & fallbackMask) && (processAffinityMask & fallbackMask))
@@ -1075,7 +1098,7 @@ inline short RunOnMask(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const ULON
 }
 
 // Run The Current Thread On A Custom Logical Processor Cluster
-inline short RunOnMask(PROCESSOR_INFO& procInfo, const ULONG64 mask, const ULONG64 fallbackMask = 0xffffffff)
+inline short RunOnMask(PROCESSOR_INFO &procInfo, const ULONG64 mask, const ULONG64 fallbackMask = 0xffffffff)
 {
 #ifdef ENABLE_RUNON
 	HANDLE threadHandle = GetCurrentThread();
@@ -1086,7 +1109,7 @@ inline short RunOnMask(PROCESSOR_INFO& procInfo, const ULONG64 mask, const ULONG
 }
 
 // Run A Thread On the Atom or Core Logical Processor Cluster
-inline short RunOn(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const CoreTypes type, const ULONG64 fallbackMask = 0xffffffff)
+inline short RunOn(PROCESSOR_INFO &procInfo, HANDLE threadHandle, const CoreTypes type, const ULONG64 fallbackMask = 0xffffffff)
 {
 #ifdef ENABLE_RUNON_PRIORITY
 	switch (type)
@@ -1103,7 +1126,7 @@ inline short RunOn(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const CoreType
 	}
 #endif
 #ifdef ENABLE_RUNON
-	//assert(procInfo.coreMasks.size());
+	// assert(procInfo.coreMasks.size());
 
 	if (procInfo.coreMasks.size())
 	{
@@ -1118,7 +1141,7 @@ inline short RunOn(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const CoreType
 }
 
 // Run The Current Thread On Atom or Core Logical Processor Cluster
-inline short RunOn(PROCESSOR_INFO& procInfo, const CoreTypes type, const ULONG64 fallbackMask = 0xffffffff)
+inline short RunOn(PROCESSOR_INFO &procInfo, const CoreTypes type, const ULONG64 fallbackMask = 0xffffffff)
 {
 #ifdef ENABLE_RUNON
 	HANDLE threadHandle = GetCurrentThread();
@@ -1129,17 +1152,17 @@ inline short RunOn(PROCESSOR_INFO& procInfo, const CoreTypes type, const ULONG64
 }
 
 // Run A Thread On Any Logical Processor
-inline short RunOnAny(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const ULONG64 fallbackMask = 0xffffffff)
+inline short RunOnAny(PROCESSOR_INFO &procInfo, HANDLE threadHandle, const ULONG64 fallbackMask = 0xffffffff)
 {
 #ifdef ENABLE_RUNON
 	return RunOn(procInfo, threadHandle, CoreTypes::ANY, fallbackMask);
 #else
 	return 0;
-#endif 
+#endif
 }
 
 // Run The Current Thread On Any Logical Processor
-inline short RunOnAny(PROCESSOR_INFO& procInfo, const ULONG64 fallbackMask = 0xffffffff)
+inline short RunOnAny(PROCESSOR_INFO &procInfo, const ULONG64 fallbackMask = 0xffffffff)
 {
 #ifdef ENABLE_RUNON
 	HANDLE threadHandle = GetCurrentThread();
@@ -1150,7 +1173,7 @@ inline short RunOnAny(PROCESSOR_INFO& procInfo, const ULONG64 fallbackMask = 0xf
 }
 
 // Run A Thread On One Logical Processor
-inline bool RunOnOne(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const short coreID, const ULONG64 fallbackMask = 0xffffffff)
+inline bool RunOnOne(PROCESSOR_INFO &procInfo, HANDLE threadHandle, const short coreID, const ULONG64 fallbackMask = 0xffffffff)
 {
 #ifdef ENABLE_RUNON
 	bool succeeded = false;
@@ -1167,8 +1190,9 @@ inline bool RunOnOne(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const short 
 		// Check to see if the core is masked
 		int iterations = 0;
 		int runningOn = -1;
-		do {
-			// Surrender time-slice 
+		do
+		{
+			// Surrender time-slice
 			Sleep(0);
 			// Where Are We?
 			runningOn = GetCurrentProcessorNumber();
@@ -1178,12 +1202,12 @@ inline bool RunOnOne(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const short 
 		} while (runningOn != coreID);
 		// Assert In Debug
 		assert(runningOn == coreID);
-		//Where did we land?
+		// Where did we land?
 		int finishedOn = GetCurrentProcessorNumber();
 
 		// Did we finish where we wanted?
 		assert(runningOn == finishedOn);
-#endif       
+#endif
 
 		return succeeded;
 	}
@@ -1195,7 +1219,7 @@ inline bool RunOnOne(PROCESSOR_INFO& procInfo, HANDLE threadHandle, const short 
 }
 
 // Run The Current Thread On One Logical Processor
-inline bool RunOnOne(PROCESSOR_INFO& procInfo, const short coreID, const ULONG64 fallbackMask = 0xffffffff)
+inline bool RunOnOne(PROCESSOR_INFO &procInfo, const short coreID, const ULONG64 fallbackMask = 0xffffffff)
 {
 #ifdef ENABLE_RUNON
 	HANDLE threadHandle = GetCurrentThread();

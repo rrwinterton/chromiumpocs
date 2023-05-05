@@ -8,26 +8,24 @@
 int main(int argc, char *argv[])
 {
     // locals
-    uint32_t PCoreACCoreFrequency;
-    uint32_t PCoreDCCoreFrequency;
-    uint32_t ECoreACCoreFrequency;
-    uint32_t ECoreDCCoreFrequency;
+    uint32_t gearupValue;
+    uint32_t geardownValue;
     frequencyLimiter FrequencyLimiter;
     bool IsHybrid;
     int Ret;
 
-    /*
-        int PCoreACCoreFrequency, PCoreDCCoreFrequency, ECoreACCoreFrequency, ECoreDCCoreFrequency;
-        std::cout << "Frequency Limiter Unit Test:" << std::endl;
-        if (argc != 5) {
-         std::cout << "usage: freqreq PCoreACMaxFreq PCoreDCMaxFreq ECoreACMaxFreq EcoreDCMaxFreq " << "(use 0 default and for ECore non-hybrid systems)" << std::endl;
+    uint32_t PCoreACCoreFrequency;
+    uint32_t PCoreDCCoreFrequency;
+    uint32_t ECoreACCoreFrequency;
+    uint32_t ECoreDCCoreFrequency;
+
+        std::cout << "Frequency Regulating Unit Tests:" << std::endl;
+        if (argc != 3) {
+         std::cout << "usage: freqreq geardownValue gearupValue " << "(Max number of knobs for now 100, use 0-100 for now)" << std::endl;
          return ERROR_INPUT;
         }
-        PCoreACCoreFrequency = std::stoi(argv[1]);
-        PCoreDCCoreFrequency = std::stoi(argv[2]);
-        ECoreACCoreFrequency = std::stoi(argv[3]);
-        ECoreDCCoreFrequency = std::stoi(argv[4]);
-    */
+        geardownValue = std::stoi(argv[1]);
+        gearupValue = std::stoi(argv[2]);
 
     // check for hybrid
     Ret = FrequencyLimiter.IsHybridCore(IsHybrid);
@@ -36,18 +34,38 @@ int main(int argc, char *argv[])
         goto GracefulExit;
     }
 
-    Ret = FrequencyLimiter.SetUpStepping(1);
-    Ret = FrequencyLimiter.SetDownStepping(MAX_DOWN_STEPPING);
+//    Ret = FrequencyLimiter.SetSteppingKnobs(MAX_KNOBS); //needs to change to scale steppings now one to one
 
-    // this checks scaling
-    FrequencyLimiter.GearUp(3);
-    FrequencyLimiter.GearDown(3);
-    FrequencyLimiter.GearUp(3);
-    FrequencyLimiter.GearDown(1);
+    // geardown test
+    FrequencyLimiter.GearDown(geardownValue);
 
-    //    Ret = FrequencyLimiter.SetCoreMaxFrequency(PCORE, 0, 0);
-    //    Ret = FrequencyLimiter.SetCoreMaxFrequency(ECORE, 0, 0);
+    // output pcore ac dc frequencies
+    Ret = FrequencyLimiter.GetCoreMaxFrequency(PCORE, PCoreACCoreFrequency, PCoreDCCoreFrequency);
+    if (Ret != 0)
+    {
+        goto GracefulExit;
+    }
 
+    std::cout << std::endl << "Test Gear Down" << std::endl;
+    std::cout << "PCore AC Freq " << PCoreACCoreFrequency << std::endl
+        << "PCore DC Freq " << PCoreDCCoreFrequency << std::endl;
+    if (IsHybrid) {
+
+        Ret = FrequencyLimiter.GetCoreMaxFrequency(ECORE, ECoreACCoreFrequency, ECoreDCCoreFrequency);
+        if (Ret != 0)
+        {
+            goto GracefulExit;
+        }
+        // output ecore ac dc frequencies
+        std::cout << "ECore AC Freq " << ECoreACCoreFrequency << std::endl
+            << "ECore DC Freq " << ECoreDCCoreFrequency << std::endl;
+    }
+
+    std::cout << std::endl << "Press enter key to continue..." << std::endl;
+    std::cin.get();
+
+    std::cout << std::endl << "Test Gear Up" << std::endl;
+    FrequencyLimiter.GearUp(gearupValue);
 
     // output pcore ac dc frequencies
     Ret = FrequencyLimiter.GetCoreMaxFrequency(PCORE, PCoreACCoreFrequency, PCoreDCCoreFrequency);
@@ -69,8 +87,22 @@ int main(int argc, char *argv[])
         std::cout << "ECore AC Freq " << ECoreACCoreFrequency << std::endl
             << "ECore DC Freq " << ECoreDCCoreFrequency << std::endl;
     }
- /*
-    // if hybrid system
+//    std::cout << std::endl << "Press enter key to continue..." << std::endl;
+//    std::cin.get();
+
+    /*
+        int PCoreACCoreFrequency, PCoreDCCoreFrequency, ECoreACCoreFrequency, ECoreDCCoreFrequency;
+        std::cout << "Frequency Limiter Unit Test:" << std::endl;
+        if (argc != 5) {
+         std::cout << "usage: freqreq PCoreACMaxFreq PCoreDCMaxFreq ECoreACMaxFreq EcoreDCMaxFreq " << "(use 0 default and for ECore non-hybrid systems)" << std::endl;
+         return ERROR_INPUT;
+        }
+        PCoreACCoreFrequency = std::stoi(argv[1]);
+        PCoreDCCoreFrequency = std::stoi(argv[2]);
+        ECoreACCoreFrequency = std::stoi(argv[3]);
+        ECoreDCCoreFrequency = std::stoi(argv[4]);
+
+        // if hybrid system
     if (IsHybrid)
     {
         //
