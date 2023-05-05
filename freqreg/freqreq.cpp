@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
     uint32_t geardownValue;
     frequencyLimiter FrequencyLimiter;
     bool IsHybrid;
+    uint32_t CurrentFrequency;
     int Ret;
 
     uint32_t PCoreACCoreFrequency;
@@ -19,13 +20,15 @@ int main(int argc, char *argv[])
     uint32_t ECoreACCoreFrequency;
     uint32_t ECoreDCCoreFrequency;
 
-        std::cout << "Frequency Regulating Unit Tests:" << std::endl;
-        if (argc != 3) {
-         std::cout << "usage: freqreq geardownValue gearupValue " << "(Max number of knobs for now 100, use 0-100 for now)" << std::endl;
-         return ERROR_INPUT;
-        }
-        geardownValue = std::stoi(argv[1]);
-        gearupValue = std::stoi(argv[2]);
+    std::cout << "Frequency Regulating Unit Tests:" << std::endl;
+    if (argc != 3)
+    {
+        std::cout << "usage: freqreq geardownValue gearupValue "
+                  << "(Max number of knobs for now 100, use 0-100 for now)" << std::endl;
+        return ERROR_INPUT;
+    }
+    geardownValue = std::stoi(argv[1]);
+    gearupValue = std::stoi(argv[2]);
 
     // check for hybrid
     Ret = FrequencyLimiter.IsHybridCore(IsHybrid);
@@ -34,7 +37,10 @@ int main(int argc, char *argv[])
         goto GracefulExit;
     }
 
-//    Ret = FrequencyLimiter.SetSteppingKnobs(MAX_KNOBS); //needs to change to scale steppings now one to one
+    Ret = FrequencyLimiter.CalculateFrequency(CurrentFrequency);
+    std::cout << "calculated Frequency " << CurrentFrequency << std::endl;
+
+    //    Ret = FrequencyLimiter.SetSteppingKnobs(MAX_KNOBS); //needs to change to scale steppings now one to one
 
     // geardown test
     FrequencyLimiter.GearDown(geardownValue);
@@ -46,10 +52,12 @@ int main(int argc, char *argv[])
         goto GracefulExit;
     }
 
-    std::cout << std::endl << "Test Gear Down" << std::endl;
+    std::cout << std::endl
+              << "Test Gear Down " << geardownValue << std::endl;
     std::cout << "PCore AC Freq " << PCoreACCoreFrequency << std::endl
-        << "PCore DC Freq " << PCoreDCCoreFrequency << std::endl;
-    if (IsHybrid) {
+              << "PCore DC Freq " << PCoreDCCoreFrequency << std::endl;
+    if (IsHybrid)
+    {
 
         Ret = FrequencyLimiter.GetCoreMaxFrequency(ECORE, ECoreACCoreFrequency, ECoreDCCoreFrequency);
         if (Ret != 0)
@@ -58,13 +66,15 @@ int main(int argc, char *argv[])
         }
         // output ecore ac dc frequencies
         std::cout << "ECore AC Freq " << ECoreACCoreFrequency << std::endl
-            << "ECore DC Freq " << ECoreDCCoreFrequency << std::endl;
+                  << "ECore DC Freq " << ECoreDCCoreFrequency << std::endl;
     }
 
-    std::cout << std::endl << "Press enter key to continue..." << std::endl;
+    std::cout << std::endl
+              << "Press enter key to continue..." << std::endl;
     std::cin.get();
 
-    std::cout << std::endl << "Test Gear Up" << std::endl;
+    std::cout << std::endl
+              << "Test Gear Up " << gearupValue << std::endl;
     FrequencyLimiter.GearUp(gearupValue);
 
     // output pcore ac dc frequencies
@@ -76,7 +86,8 @@ int main(int argc, char *argv[])
 
     std::cout << "PCore AC Freq " << PCoreACCoreFrequency << std::endl
               << "PCore DC Freq " << PCoreDCCoreFrequency << std::endl;
-    if (IsHybrid) {
+    if (IsHybrid)
+    {
 
         Ret = FrequencyLimiter.GetCoreMaxFrequency(ECORE, ECoreACCoreFrequency, ECoreDCCoreFrequency);
         if (Ret != 0)
@@ -85,10 +96,10 @@ int main(int argc, char *argv[])
         }
         // output ecore ac dc frequencies
         std::cout << "ECore AC Freq " << ECoreACCoreFrequency << std::endl
-            << "ECore DC Freq " << ECoreDCCoreFrequency << std::endl;
+                  << "ECore DC Freq " << ECoreDCCoreFrequency << std::endl;
     }
-//    std::cout << std::endl << "Press enter key to continue..." << std::endl;
-//    std::cin.get();
+    //    std::cout << std::endl << "Press enter key to continue..." << std::endl;
+    //    std::cin.get();
 
     /*
         int PCoreACCoreFrequency, PCoreDCCoreFrequency, ECoreACCoreFrequency, ECoreDCCoreFrequency;

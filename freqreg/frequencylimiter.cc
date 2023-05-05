@@ -10,30 +10,22 @@
 #include <guiddef.h>
 #include <rpc.h>
 #include <tchar.h>
-#include "HybridDetect.h"
 #include "frequencyLimiter.h"
 
 // frequencylimiter class
 
-#pragma comment(lib, "pdh.lib")
-
 // frequencyLimiter class constructor
 frequencyLimiter::frequencyLimiter()
 {
-
-    PROCESSOR_INFO procInfo;
-
     m_IsHybrid = false;
 
     // rrw
-    m_MaxFrequency = CalculateFrequency();
-    SetMinFrequency(); //TODO:rrw
     m_CurrentGear = MAX_KNOBS;
-
+    CalculateFrequency(m_MaxFrequency);
+    SetMinFrequency(); // TODO:rrw
     // rrw
 
-    GetProcessorInfo(procInfo);
-    m_IsHybrid = procInfo.hybrid;
+    m_IsHybrid = m_procInfo.hybrid;
     if (m_IsHybrid)
     {
         m_PCoreGuid = GUID_PROCESSOR_FREQUENCY_LIMIT_1;
@@ -62,17 +54,32 @@ frequencyLimiter::~frequencyLimiter()
 }
 
 // frequencyLimiter::calculateFrequency
-uint32_t frequencyLimiter::CalculateFrequency()
+int32_t frequencyLimiter::CalculateFrequency(uint32_t &MaxFrequency)
 {
-    std::vector<double> frequency;
-    double instance;
-    for (auto i = 0; i < SAMPLES_FOR_FREQ; i++)
+    std::vector<double> frequencies;
+    LARGE_INTEGER freq;
+    LARGE_INTEGER start, end;
+    DWORD64 tsc1, tsc2, tscDelta;
+    double elapsed, frequency;
+
+    if (!QueryPerformanceFrequency(&freq))
     {
-        unsigned long long tsc1 = __rdtsc();
-        Sleep(10);
-        unsigned long long tsc2 = __rdtsc();
-        instance = (double)(tsc2 - tsc1) / 10000.0;
-        frequency.push_back(instance);
+        return CALCULATE_FREQUENCY_ERROR;
+    }
+    for (int i = 0; i < SAMPLES_FOR_FREQ; i++)
+    {
+        QueryPerformanceCounter(&start);
+        tsc1 = __rdtsc();
+
+        // do something
+        GetProcessorInfo(m_procInfo);
+
+        tsc2 = __rdtsc();
+        QueryPerformanceCounter(&end);
+        elapsed = (end.QuadPart - start.QuadPart) / (double)freq.QuadPart;
+        tscDelta = tsc2 - tsc1;
+        frequency = (tscDelta / elapsed) / 1000000;
+        frequencies.push_back(frequency);
     }
 
     /* geomean */
@@ -84,25 +91,27 @@ uint32_t frequencyLimiter::CalculateFrequency()
         product *= number;
     }
     gmean = std::pow(product, 1.0 / frequency.size());
-    return static_cast<uint32_t>(geomean);
+    m_MaxFrequency = gmean;
+    return static_cast<uint32_t>(gmean);
 #else
     /* average */
-    double sum = std::accumulate(frequency.begin(), frequency.end(), 0);
-    double average = (double)sum / frequency.size();
-
-    return static_cast<uint32_t>(average);
+    double sum = std::accumulate(frequencies.begin(), frequencies.end(), 0);
+    double average = (double)sum / frequencies.size();
+    m_MaxFrequency = static_cast<uint32_t>(average);
+    MaxFrequency = m_MaxFrequency;
+    return 0;
 #endif
 }
 
 // frequencyLimiter::IsHybridCore
-int frequencyLimiter::IsHybridCore(bool &IsHybrid)
+int32_t frequencyLimiter::IsHybridCore(bool &IsHybrid)
 {
     IsHybrid = m_IsHybrid;
     return 0;
 }
 
 // frequencyLimiter::SetCoreMaxFrequency
-int frequencyLimiter::SetCoreMaxFrequency(int Core, uint32_t ACMaxFrequency, uint32_t DCMaxFrequency)
+int32_t frequencyLimiter::SetCoreMaxFrequency(int Core, uint32_t ACMaxFrequency, uint32_t DCMaxFrequency)
 {
     DWORD ReturnValue;
     GUID *guid;
@@ -156,7 +165,7 @@ GracefulExit:
 }
 
 // frequencyLimiter::GetCoreMaxFrequency
-int frequencyLimiter::GetCoreMaxFrequency(int Core, uint32_t &ACMaxFrequency, uint32_t &DCMaxFrequency)
+int32_t frequencyLimiter::GetCoreMaxFrequency(int Core, uint32_t &ACMaxFrequency, uint32_t &DCMaxFrequency)
 {
     DWORD ReturnValue;
     HKEY hKey;
@@ -271,25 +280,28 @@ uint32_t frequencyLimiter::SetSteppingKnobs(uint32_t Stepping)
 }
 */
 
-int frequencyLimiter::GearDown(uint32_t Count)
- {
+int32_t frequencyLimiter::GearDown(uint32_t Count)
+{
     float CurrentGear, Max_Gear_Stepping;
     uint32_t dcOffset, eCoreOffset;
 
-    if ((0 == Count) || (Count > MAX_KNOBS)) {
+    if ((0 == Count) || (Count > MAX_KNOBS))
+    {
         goto GracefulExit;
     }
     if (m_CurrentGear - Count > 0)
     {
         m_CurrentGear -= Count;
-        CurrentGear = (float ) m_CurrentGear;
-        Max_Gear_Stepping = (float ) MAX_KNOBS;
+        CurrentGear = (float)m_CurrentGear;
+        Max_Gear_Stepping = (float)MAX_KNOBS;
         m_CurrentACFrequency = (CurrentGear / Max_Gear_Stepping) * m_MaxFrequency;
-        if (m_CurrentACFrequency > 400) {
-            dcOffset = 200; //rrw fix magic numbers
+        if (m_CurrentACFrequency > 400)
+        {
+            dcOffset = 200; // rrw fix magic numbers
             eCoreOffset = ECORE_OFFSET;
         }
-        else {
+        else
+        {
             dcOffset = 0;
             eCoreOffset = 0;
         }
@@ -304,14 +316,17 @@ int frequencyLimiter::GearDown(uint32_t Count)
     {
         m_CurrentGear = 0;
         m_CurrentACFrequency = m_MinFrequency;
-        if (m_CurrentACFrequency > 400) {
-            dcOffset = 200; //rrw fix magic numbers
+        if (m_CurrentACFrequency > 400)
+        {
+            dcOffset = 200; // rrw fix magic numbers
             eCoreOffset = ECORE_OFFSET;
         }
-        else {
+        else
+        {
             dcOffset = 0;
             eCoreOffset = 0;
         }
+        m_CurrentDCFrequency = m_CurrentACFrequency - dcOffset;
         SetCoreMaxFrequency(PCORE, m_CurrentACFrequency, m_CurrentDCFrequency);
         if (m_IsHybrid)
         {
@@ -322,12 +337,13 @@ GracefulExit:
     return 0;
 }
 
-int frequencyLimiter::GearUp(uint32_t Count)
+int32_t frequencyLimiter::GearUp(uint32_t Count)
 {
     float CurrentGear, Max_Gear_Stepping;
     uint32_t dcOffset, eCoreOffset;
 
-    if ((0 == Count) || (Count > MAX_KNOBS)) {
+    if ((0 == Count) || (Count > MAX_KNOBS))
+    {
         goto GracefulExit;
     }
     if (m_CurrentGear + Count < MAX_KNOBS)
@@ -336,11 +352,13 @@ int frequencyLimiter::GearUp(uint32_t Count)
         CurrentGear = (float)m_CurrentGear;
         Max_Gear_Stepping = (float)MAX_KNOBS;
         m_CurrentACFrequency = (CurrentGear / Max_Gear_Stepping) * m_MaxFrequency;
-        if (m_CurrentACFrequency > 400) {
-            dcOffset = 200; //rrw fix magic numbers
+        if (m_CurrentACFrequency > 400)
+        {
+            dcOffset = 200; // rrw fix magic numbers
             eCoreOffset = ECORE_OFFSET;
         }
-        else {
+        else
+        {
             dcOffset = 0;
             eCoreOffset = 0;
         }
