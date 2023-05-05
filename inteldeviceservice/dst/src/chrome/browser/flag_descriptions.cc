@@ -727,6 +727,10 @@ const char kDevicePostureDescription[] =
 const char kDeviceServiceName[] = "Device Service API";
 const char kDeviceServiceDescription[] =
     "Enables Device Service API (device services)";
+const char kDeviceServiceDefault[] = "Enabled";
+const char kDeviceServiceIPF[] = "IPF";
+const char kDeviceServiceFrequency[] = "Frequency";
+const char kDeviceServiceDisabled[] = "Disabled";
 
 const char kHardwareProfilingName[] = "Hardware Profiling";
 const char kHardwareProfilingDescription[] = "Enables Hardware Profiling";

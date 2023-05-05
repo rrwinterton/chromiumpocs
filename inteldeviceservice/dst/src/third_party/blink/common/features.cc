@@ -24,11 +24,7 @@ namespace features {
 BASE_FEATURE(kAnonymousIframeOriginTrial,
              "AnonymousIframeOriginTrial",
              base::FEATURE_ENABLED_BY_DEFAULT);
-
-// Enable the device service API.
-// Tracking bug for enabling device service API
-BASE_FEATURE(kDeviceService, "DeviceService", base::FEATURE_ENABLED_BY_DEFAULT);
-          
+             
 // Gate access to Attribution Reporting cross app and web APIs that allow
 // registering with a native attribution API.
 BASE_FEATURE(kAttributionReportingCrossAppWeb,

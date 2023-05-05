@@ -691,12 +691,12 @@ DLLEXPORT void __cdecl RelaunchChromeBrowserWithNewCommandLineIfNeeded() {
 #if BUILDFLAG(ENABLE_IPF)
 typedef unsigned int u32;
 extern "C" {
-     void IPF_etw_register();
-     void IPF_etw_unregister();
+void IPF_etw_register();
+void IPF_etw_unregister();
 
-     void IPF_etw_log_GearUp(u32 pl1 = 0, u32 pl2 = 0, u32 CPUpower = 0);
-     void IPF_etw_log_GearDown(u32 pl1 = 0, u32 pl2 = 0, u32 CPUpower = 0);
-     void IPF_etw_log_event(u32 i = 0, const char* logmsg = "");
+void IPF_etw_log_GearUp(u32 pl1 = 0, u32 pl2 = 0, u32 CPUpower = 0);
+void IPF_etw_log_GearDown(u32 pl1 = 0, u32 pl2 = 0, u32 CPUpower = 0);
+void IPF_etw_log_event(u32 i = 0, const char* logmsg = "");
 }
 #endif
 #endif
@@ -749,10 +749,13 @@ int ChromeBrowserMainParts::PreEarlyInitialization() {
     // result in browser startup bailing.
     return chrome::RESULT_CODE_NORMAL_EXIT_UPGRADE_RELAUNCHED;
   }
-  #if BUILDFLAG(ENABLE_IPF)
-  ConnectIPF();
-  IPF_etw_register();
-  #endif
+#if BUILDFLAG(ENABLE_IPF)
+  const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF) {
+    ConnectIPF();
+    IPF_etw_register();
+  }
+#endif
 #endif  // BUILDFLAG(IS_WIN)
   return load_local_state_result;
 }
@@ -1907,12 +1910,14 @@ void ChromeBrowserMainParts::PostMainMessageLoopRun() {
   browser_process_->StartTearDown();
 #endif  // BUILDFLAG(IS_ANDROID)
 #if BUILDFLAG(IS_WIN)
-  #if BUILDFLAG(ENABLE_IPF)
-  DisconnectIPF();
-  IPF_etw_unregister();
-  #endif
+#if BUILDFLAG(ENABLE_IPF)
+  const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF) {
+    DisconnectIPF();
+    IPF_etw_unregister();
+  }
 #endif
-  
+#endif
 }
 
 void ChromeBrowserMainParts::PostDestroyThreads() {

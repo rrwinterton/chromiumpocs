@@ -109,6 +109,7 @@
 #include "storage/browser/quota/quota_manager.h"
 #include "storage/browser/quota/quota_manager_proxy.h"
 #include "third_party/blink/public/common/features.h"
+#include "third_party/blink/public/common/switches.h"
 #include "third_party/blink/public/common/storage_key/storage_key.h"
 #include "third_party/blink/public/mojom/background_fetch/background_fetch.mojom.h"
 #include "third_party/blink/public/mojom/background_sync/background_sync.mojom.h"
@@ -575,11 +576,12 @@ DeviceServiceProviderBinder& GetDeviceServiceProviderBinderOverride() {
 void BindDeviceServiceProvider(
     mojo::PendingReceiver<device::mojom::DeviceServiceProvider> receiver) {
   const auto& binder = GetDeviceServiceProviderBinderOverride();
+  const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (binder) {
     binder.Run(std::move(receiver));
   }
 #if BUILDFLAG(IS_WIN)
-  else if (base::FeatureList::IsEnabled(blink::features::kDeviceService)) {
+  else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) != blink::switches::kDeviceServiceDisabled) {
     GetDeviceService().BindDeviceServiceProvider(std::move(receiver));
   }
 #endif

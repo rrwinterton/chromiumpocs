@@ -994,6 +994,18 @@ const FeatureEntry::Choice kForceUIDirectionChoices[] = {
      switches::kForceDirectionRTL},
 };
 
+
+const FeatureEntry::Choice kDeviceServiceChoices[] = {
+    {flag_descriptions::kDeviceServiceDefault, "", ""},
+    {flag_descriptions::kDeviceServiceIPF, blink::switches::kDeviceService,
+     blink::switches::kDeviceServiceIPF},
+    {flag_descriptions::kDeviceServiceFrequency, blink::switches::kDeviceService,
+     blink::switches::kDeviceServiceFrequency},
+    {flag_descriptions::kDeviceServiceDisabled, blink::switches::kDeviceService,
+     blink::switches::kDeviceServiceDisabled},
+};
+
+
 const FeatureEntry::Choice kForceTextDirectionChoices[] = {
     {flags_ui::kGenericExperimentChoiceDefault, "", ""},
     {flag_descriptions::kForceDirectionLtr, switches::kForceTextDirection,
@@ -7155,7 +7167,7 @@ const FeatureEntry kFeatureEntries[] = {
 
     {"device-service", flag_descriptions::kDeviceServiceName,
      flag_descriptions::kDeviceServiceDescription, kOsWin | kOsCrOS | kOsLinux,
-     FEATURE_VALUE_TYPE(blink::features::kDeviceService)},
+     MULTI_VALUE_TYPE(kDeviceServiceChoices)},
 
     {"hardware-profiling", flag_descriptions::kHardwareProfilingName,
      flag_descriptions::kHardwareProfilingDescription, kOsWin | kOsCrOS | kOsLinux,

@@ -178,10 +178,10 @@
 #include "mojo/public/cpp/bindings/receiver.h"
 #include "mojo/public/cpp/bindings/scoped_message_error_crash_key.h"
 #include "sandbox/policy/switches.h"
+#include "services/device/public/mojom/device_service_provider.mojom.h"
 #include "services/device/public/mojom/power_monitor.mojom.h"
 #include "services/device/public/mojom/screen_orientation.mojom.h"
 #include "services/device/public/mojom/time_zone_monitor.mojom.h"
-#include "services/device/public/mojom/device_service_provider.mojom.h"
 #include "services/metrics/public/cpp/ukm_recorder.h"
 #include "services/metrics/public/mojom/ukm_interface.mojom.h"
 #include "services/metrics/ukm_recorder_interface.h"
@@ -2324,8 +2324,7 @@ void RenderProcessHostImpl::RegisterMojoInterfaces() {
       base::BindRepeating(
           [](mojo::PendingReceiver<device::mojom::DeviceServiceProvider>
                  receiver) {
-            GetDeviceService().BindDeviceServiceProvider(
-                std::move(receiver));
+            GetDeviceService().BindDeviceServiceProvider(std::move(receiver));
           }));
 
   AddUIThreadInterface(
@@ -3426,6 +3425,10 @@ void RenderProcessHostImpl::PropagateBrowserCommandLineToRenderer(
     blink::switches::kDarkModeSettings,
     blink::switches::kDefaultTileWidth,
     blink::switches::kDefaultTileHeight,
+    blink::switches::kDeviceService,
+    blink::switches::kDeviceServiceDisabled,
+    blink::switches::kDeviceServiceFrequency,
+    blink::switches::kDeviceServiceIPF,
     blink::switches::kDisableImageAnimationResync,
     blink::switches::kDisableLowResTiling,
     blink::switches::kDisablePreferCompositingToLCDText,

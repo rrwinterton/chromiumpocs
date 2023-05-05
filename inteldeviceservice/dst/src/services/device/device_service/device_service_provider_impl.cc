@@ -7,8 +7,10 @@
 #include <windows.h>
 
 #include "base/bind.h"
+#include "base/command_line.h"
 #include "mojo/public/cpp/bindings/remote_set.h"
 #include "services/device/device_service/device_service_platform_provider.h"
+#include "third_party/blink/public/common/switches.h"
 
 namespace device {
 
@@ -62,6 +64,7 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
     const char* enum_name = "";
     #endif
 
+    const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
     switch (last_capacity_) {
       case mojom::Capacity::kCapacityIdle:
 
@@ -69,19 +72,31 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "IDLE";
         #endif
 
+        // TODO: Add frequency changes for idle here
+        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
+
+        }
+
         #if BUILDFLAG(ENABLE_IPF)
-        GearDown();
+          else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+            GearDown();
         #endif
 
         break;
       case mojom::Capacity::kCapacityUnder:
 
         #if BUILDFLAG(ENABLE_LOGGING)
-        enum_name = "UNDER";
+          enum_name = "UNDER";
         #endif
 
+        // TODO: Add frequency changes for under here
+        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
+
+        }
+
         #if BUILDFLAG(ENABLE_IPF)
-        GearDown();
+        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+          GearDown();
         #endif
 
         break;
@@ -90,7 +105,13 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "MEET";
         #endif
 
+        // TODO: Add frequency changes for meet here
+        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
+
+        }
+
         #if BUILDFLAG(ENABLE_IPF)
+        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
         #endif
 
         break;
@@ -99,8 +120,14 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "OVER";
         #endif
 
+        // TODO: Add frequency changes for high here
+        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
+
+        }
+
         #if BUILDFLAG(ENABLE_IPF)
-        GearUp();
+        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+          GearUp();
         #endif
 
         break;
