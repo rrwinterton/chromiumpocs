@@ -9,6 +9,8 @@
 #include <memory>
 #include <string>
 
+#include "base/containers/flat_map.h"
+#include "base/containers/flat_set.h"
 #include "base/task/single_thread_task_runner.h"
 #include "mojo/public/cpp/bindings/pending_receiver.h"
 #include "mojo/public/cpp/bindings/pending_remote.h"
@@ -32,6 +34,8 @@ class DeviceServicePlatformProvider;
 
 class DeviceServiceProviderImpl : public mojom::DeviceServiceProvider {
  public:
+  using ProcessThreadId = std::pair<uint32_t, uint32_t>;
+
   explicit DeviceServiceProviderImpl(
       std::unique_ptr<DeviceServicePlatformProvider> service_provider);
 
@@ -54,16 +58,31 @@ class DeviceServiceProviderImpl : public mojom::DeviceServiceProvider {
                               uint32_t pthread_id,
                               mojom::Capacity capacity,
                               SubmitTaskCapacityHintCallback callback) override;
+  void StartCollectingLbr(uint32_t process_id, uint32_t thread_id) override;
+  void StopCollectingLbr(uint32_t process_id, uint32_t thread_id) override;
+  void GetLbrData(uint32_t process_id,
+                  uint32_t thread_id,
+                  GetLbrDataCallback callback) override;
+
   void OnReceiverConnectionError();
 
-  // Since we are currently only performing updates at the system level, we will
-  // collapse all requesting into a single set of variables.
+  void OnRecieveLbrData();
+
+  // Since we are currently only performing updates at the system level, we
+  // will collapse all requesting into a single set of variables.
   uint32_t last_update_;
   mojom::Capacity last_capacity_;
 
   std::unique_ptr<DeviceServicePlatformProvider> platform_provider_;
   mojo::ReceiverSet<mojom::DeviceServiceProvider> receivers_;
   mojo::RemoteSet<mojom::DeviceServiceProviderClient> clients_;
+
+  base::flat_map<mojo::ReceiverId, base::flat_set<ProcessThreadId>>
+      receiver_requests_;
+  base::flat_map<ProcessThreadId, mojom::LbrData> lbr_data_;
+  //TODO: we should probably merge these 2 maps
+  base::flat_map<ProcessThreadId, uint32_t> request_counter_;
+
   base::WeakPtrFactory<DeviceServiceProviderImpl> weak_ptr_factory_{this};
 };
 

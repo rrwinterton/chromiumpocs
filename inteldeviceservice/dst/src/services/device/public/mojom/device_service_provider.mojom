@@ -17,6 +17,10 @@ enum Capacity {
   kCapacityOver,
 };
 
+struct LbrData {
+    uint32 timestamp;
+};
+
 // This interface is used to get the service of the device from
 // DeviceServiceService.
 interface DeviceServiceProvider {
@@ -29,6 +33,10 @@ interface DeviceServiceProvider {
   SubmitTaskCapacityHint(uint32 system_time, uint32 process_id,
     uint32 thread_id, Capacity capacity)
       => (int32 request_id);
+
+  StartCollectingLbr(uint32 process_id, uint32 thread_id);
+  StopCollectingLbr(uint32 process_id, uint32 thread_id);
+  GetLbrData(uint32 process_id, uint32 thread_id) => (LbrData lbr_data);
 };
 
 // Interface that client of the DeviceServiceProvider interface must implement

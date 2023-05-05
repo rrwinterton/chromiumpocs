@@ -24,6 +24,15 @@ DeviceServiceProviderImpl::DeviceServiceProviderImpl(
   receivers_.set_disconnect_handler(
       base::BindRepeating(&DeviceServiceProviderImpl::OnReceiverConnectionError,
                           weak_ptr_factory_.GetWeakPtr()));
+
+  // Since we don't have an elevated process to get the LBR data, we are just
+  // going to update a timestamp every kUpdateIntervalMS
+  constexpr auto kMinimalPostTaskDelay = base::Milliseconds(kUpdateIntervalMS);
+  base::SequencedTaskRunner::GetCurrentDefault()->PostDelayedTask(
+      FROM_HERE,
+      base::BindOnce(&DeviceServiceProviderImpl::OnRecieveLbrData,
+                     weak_ptr_factory_.GetWeakPtr()),
+      kMinimalPostTaskDelay);
 }
 
 DeviceServiceProviderImpl::~DeviceServiceProviderImpl() = default;
@@ -55,7 +64,7 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
   if (capacity > last_capacity_) {
     last_capacity_ = capacity;
   }
-  
+
   if ((system_time - last_update_) > kUpdateIntervalMS) {
 
     #if BUILDFLAG(ENABLE_LOGGING)
@@ -104,10 +113,14 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         break;
+      default:
+        enum_name = "Unknown";
     }
 
     #if BUILDFLAG(ENABLE_LOGGING)
-    LOG(ERROR) << ::GetCurrentProcessId() << " time, " << system_time << " pid, " << process_id << " tid, " << thread_id << ", " << enum_name;
+    LOG(ERROR) << ::GetCurrentProcessId() << " time, " << system_time
+               << " pid, " << process_id << " tid, " << thread_id << ", "
+               << enum_name;
     #endif
 
     last_update_ = system_time;
@@ -115,6 +128,40 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
   }
 
   std::move(callback).Run(42);
+}
+
+void DeviceServiceProviderImpl::StartCollectingLbr(uint32_t process_id,
+                                                   uint32_t thread_id) {
+  ProcessThreadId ptid = {process_id, thread_id};
+  mojo::ReceiverId rid = receivers_.current_receiver();
+  auto insert_id = receiver_requests_[rid].insert(ptid);
+
+  if (insert_id.second) {
+    ++request_counter_[ptid];
+    if (request_counter_[ptid] == 1) {
+      // TODO: ask elevated process to start collection LBR data
+    }
+  }
+}
+
+void DeviceServiceProviderImpl::StopCollectingLbr(uint32_t process_id,
+                                                  uint32_t thread_id) {
+  ProcessThreadId ptid = {process_id, thread_id};
+  mojo::ReceiverId rid = receivers_.current_receiver();
+  size_t erased_count = receiver_requests_[rid].erase(ptid);
+  if (erased_count != 0) {
+    --request_counter_[ptid];
+    if (request_counter_[ptid] == 0) {
+      lbr_data_.erase(ptid);
+      // TODO: ask elevated process to stop collection LBR data
+    }
+  }
+}
+
+void DeviceServiceProviderImpl::GetLbrData(uint32_t process_id,
+                                           uint32_t thread_id,
+                                           GetLbrDataCallback callback) {
+  std::move(callback).Run(lbr_data_[{process_id, thread_id}].Clone());
 }
 
 void DeviceServiceProviderImpl::Bind(
@@ -136,6 +183,35 @@ void DeviceServiceProviderImpl::OnReceiverConnectionError() {
   if (receivers_.empty()) {
     platform_provider_->StopListening();
   }
+  mojo::ReceiverId rid = receivers_.current_receiver();
+  auto request_iter = receiver_requests_.find(rid);
+  if (request_iter == receiver_requests_.end()) {
+    return;
+  }
+
+  for (auto ptid : request_iter->second) {
+    --request_counter_[ptid];
+    if (request_counter_[ptid] == 0) {
+      lbr_data_.erase(ptid);
+      // TODO: ask elevated process to stop collection LBR data
+    }
+  }
+  receiver_requests_.erase(request_iter);
+}
+
+void DeviceServiceProviderImpl::OnRecieveLbrData() {
+  // This is just a placeholder to get LBR data
+
+  for (auto& [ptid, lbr_data] : lbr_data_) {
+    lbr_data.timestamp = ::GetTickCount();
+  }
+
+  constexpr auto kMinimalPostTaskDelay = base::Milliseconds(kUpdateIntervalMS);
+  base::SequencedTaskRunner::GetCurrentDefault()->PostDelayedTask(
+      FROM_HERE,
+      base::BindOnce(&DeviceServiceProviderImpl::OnRecieveLbrData,
+                     weak_ptr_factory_.GetWeakPtr()),
+      kMinimalPostTaskDelay);
 }
 
 }  // namespace device
