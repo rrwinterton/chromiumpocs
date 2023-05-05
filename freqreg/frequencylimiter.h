@@ -14,8 +14,9 @@
 #define MIN_FREQUENCY_SCALE 10
 #define MIN_UP_STEPPING 1	//
 #define SAMPLES_FOR_FREQ 15 // samples for max frequency
-// #define USE_GEOMEAN 1
+#define USE_GEOMEAN 1
 #define DO_UNIT_TEST 1
+#define ADL_TURBO 1500
 
 // error codes
 #define ERROR_INPUT -1

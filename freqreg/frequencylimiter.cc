@@ -21,6 +21,8 @@ frequencyLimiter::frequencyLimiter()
 
     // rrw
     m_CurrentGear = MAX_KNOBS;
+    m_MaxFrequency = 0;
+    GetProcessorInfo(m_procInfo);
     CalculateFrequency(m_MaxFrequency);
     SetMinFrequency(); // TODO:rrw
     // rrw
@@ -62,45 +64,48 @@ int32_t frequencyLimiter::CalculateFrequency(uint32_t &MaxFrequency)
     DWORD64 tsc1, tsc2, tscDelta;
     double elapsed, frequency;
 
-    if (!QueryPerformanceFrequency(&freq))
-    {
-        return CALCULATE_FREQUENCY_ERROR;
-    }
-    for (int i = 0; i < SAMPLES_FOR_FREQ; i++)
-    {
-        QueryPerformanceCounter(&start);
-        tsc1 = __rdtsc();
+    if (m_MaxFrequency == 0) {
+        if (!QueryPerformanceFrequency(&freq))
+        {
+            return CALCULATE_FREQUENCY_ERROR;
+        }
+        for (int i = 0; i < SAMPLES_FOR_FREQ; i++)
+        {
+            QueryPerformanceCounter(&start);
+            tsc1 = __rdtsc();
 
-        // do something
-        GetProcessorInfo(m_procInfo);
+            // do something
+            double sum = std::accumulate(frequencies.begin(), frequencies.end(), 0);
+            double average = (double)sum / frequencies.size();
+            Sleep(1);
 
-        tsc2 = __rdtsc();
-        QueryPerformanceCounter(&end);
-        elapsed = (end.QuadPart - start.QuadPart) / (double)freq.QuadPart;
-        tscDelta = tsc2 - tsc1;
-        frequency = (tscDelta / elapsed) / 1000000;
-        frequencies.push_back(frequency);
-    }
+            tsc2 = __rdtsc();
+            QueryPerformanceCounter(&end);
+            elapsed = (end.QuadPart - start.QuadPart) / (double)freq.QuadPart;
+            tscDelta = tsc2 - tsc1;
+            frequency = ((tscDelta / elapsed) / 1000000) + ADL_TURBO; //TODO:rrw ADL_TURBO?
+            frequencies.push_back(frequency);
+        }
 
-    /* geomean */
+        /* geomean */
 #ifdef USE_GEOMEAN
-    double product = 1.0;
-    double gmean;
-    for (const auto &number : frequency)
-    {
-        product *= number;
-    }
-    gmean = std::pow(product, 1.0 / frequency.size());
-    m_MaxFrequency = gmean;
-    return static_cast<uint32_t>(gmean);
+        double product = 1.0;
+        double gmean;
+        for (const auto& number : frequencies)
+        {
+            product *= number;
+        }
+        gmean = std::pow(product, 1.0 / frequencies.size());
+        m_MaxFrequency = static_cast<uint32_t>(gmean);
 #else
     /* average */
-    double sum = std::accumulate(frequencies.begin(), frequencies.end(), 0);
-    double average = (double)sum / frequencies.size();
-    m_MaxFrequency = static_cast<uint32_t>(average);
+        double sum = std::accumulate(frequencies.begin(), frequencies.end(), 0);
+        double average = (double)sum / frequencies.size();
+        m_MaxFrequency = static_cast<uint32_t>(average);
+#endif
+    }
     MaxFrequency = m_MaxFrequency;
     return 0;
-#endif
 }
 
 // frequencyLimiter::IsHybridCore
