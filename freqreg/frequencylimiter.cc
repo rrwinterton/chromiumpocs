@@ -10,6 +10,7 @@
 #include <guiddef.h>
 #include <rpc.h>
 #include <tchar.h>
+#include <intrin.h>
 #include "frequencyLimiter.h"
 
 // frequencylimiter class
@@ -22,12 +23,12 @@ frequencyLimiter::frequencyLimiter()
     // rrw
     m_CurrentGear = MAX_KNOBS;
     m_MaxFrequency = 0;
-    GetProcessorInfo(m_procInfo);
+
     CalculateFrequency(m_MaxFrequency);
     SetMinFrequency(); // TODO:rrw
     // rrw
 
-    m_IsHybrid = m_procInfo.hybrid;
+    m_IsHybrid = IsIntelHybrid();
     if (m_IsHybrid)
     {
         m_PCoreGuid = GUID_PROCESSOR_FREQUENCY_LIMIT_1;
@@ -107,6 +108,13 @@ int32_t frequencyLimiter::CalculateFrequency(uint32_t &MaxFrequency)
     MaxFrequency = m_MaxFrequency;
     return 0;
 }
+
+bool frequencyLimiter::IsIntelHybrid() {
+    int cpuInfo[4];
+    __cpuid(cpuInfo, 0x7);
+    m_IsHybrid = cpuInfo[3] & 0x8000;
+    return m_IsHybrid;
+} 
 
 // frequencyLimiter::IsHybridCore
 int32_t frequencyLimiter::IsHybridCore(bool &IsHybrid)

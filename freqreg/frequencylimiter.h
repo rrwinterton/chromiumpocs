@@ -4,7 +4,6 @@
 #include <string>
 #include <guiddef.h>
 #include <rpc.h>
-#include "HybridDetect.h"
 
 // core types for this class (p and e)
 #define PCORE 0			 // for registry key and scaling
@@ -31,9 +30,8 @@ private:
 	// methods
 	uint32_t SetMinFrequency();
 	int SetCoreMaxFrequency(int CoreType, uint32_t ACMaxFrequency, uint32_t DCMaxFrequency); // sets core max frequencies for AC and DC
-
+	bool IsIntelHybrid();
 	// variables
-	PROCESSOR_INFO m_procInfo;
 	uint32_t m_CurrentACFrequency;
 	uint32_t m_CurrentDCFrequency;
 	uint32_t m_MaxFrequency;
@@ -53,7 +51,6 @@ public:
 	~frequencyLimiter();
 	int32_t CalculateFrequency(uint32_t &MaxFrequency);
 	int IsHybridCore(bool &IsHybrid); // Returns true if core is hybrid doesn't check OS yet
-									  //	uint32_t SetSteppingKnobs(uint32_t Stepping); // Used to set the step size max freq % min freq size
 	int32_t GearDown(uint32_t Count);
 	int32_t GearUp(uint32_t Count);
 
