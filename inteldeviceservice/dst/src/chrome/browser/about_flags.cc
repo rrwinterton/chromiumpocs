@@ -37,6 +37,7 @@
 #include "chrome/browser/ash/app_list/search/files/item_suggest_cache.h"
 #include "chrome/browser/ash/app_list/search/search_features.h"
 #include "chrome/browser/browser_features.h"
+#include "chrome/browser/buildflags.h"
 #include "chrome/browser/fast_checkout/fast_checkout_features.h"
 #include "chrome/browser/feature_guide/notifications/feature_notification_guide_service.h"
 #include "chrome/browser/flag_descriptions.h"
@@ -994,16 +995,26 @@ const FeatureEntry::Choice kForceUIDirectionChoices[] = {
      switches::kForceDirectionRTL},
 };
 
-
+#if BUILDFLAG(ENABLE_IPF)
 const FeatureEntry::Choice kDeviceServiceChoices[] = {
     {flag_descriptions::kDeviceServiceDefault, "", ""},
     {flag_descriptions::kDeviceServiceIPF, blink::switches::kDeviceService,
-     blink::switches::kDeviceServiceIPF},
+    blink::switches::kDeviceServiceIPF},
     {flag_descriptions::kDeviceServiceFrequency, blink::switches::kDeviceService,
-     blink::switches::kDeviceServiceFrequency},
+    blink::switches::kDeviceServiceFrequency},
     {flag_descriptions::kDeviceServiceDisabled, blink::switches::kDeviceService,
-     blink::switches::kDeviceServiceDisabled},
+    blink::switches::kDeviceServiceDisabled},
 };
+#endif
+#if !BUILDFLAG(ENABLE_IPF)
+const FeatureEntry::Choice kDeviceServiceChoices[] = {
+    {flag_descriptions::kDeviceServiceDefault, "", ""},
+    {flag_descriptions::kDeviceServiceFrequency, blink::switches::kDeviceService,
+    blink::switches::kDeviceServiceFrequency},
+    {flag_descriptions::kDeviceServiceDisabled, blink::switches::kDeviceService,
+    blink::switches::kDeviceServiceDisabled},
+};
+#endif
 
 
 const FeatureEntry::Choice kForceTextDirectionChoices[] = {
