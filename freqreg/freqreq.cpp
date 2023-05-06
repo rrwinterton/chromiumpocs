@@ -98,8 +98,8 @@ int main(int argc, char *argv[])
         std::cout << "ECore AC Freq " << ECoreACCoreFrequency << std::endl
                   << "ECore DC Freq " << ECoreDCCoreFrequency << std::endl;
     }
-    //    std::cout << std::endl << "Press enter key to continue..." << std::endl;
-    //    std::cin.get();
+    std::cout << std::endl << "Press enter key to continue..." << std::endl;
+    std::cin.get();
 
     /*
         int PCoreACCoreFrequency, PCoreDCCoreFrequency, ECoreACCoreFrequency, ECoreDCCoreFrequency;
