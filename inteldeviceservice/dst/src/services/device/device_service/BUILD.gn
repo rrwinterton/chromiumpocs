@@ -12,6 +12,8 @@ source_set("device_service") {
     "device_service_platform_provider.h",
     "device_service_provider_impl.cc",
     "device_service_provider_impl.h",
+    "frequencylimiter.cc",
+    "frequencylimiter.h",
   ]
 
   public_deps = [

@@ -8,7 +8,10 @@
 
 #include "base/bind.h"
 #include "mojo/public/cpp/bindings/remote_set.h"
+#include "services/device/device_service/frequencylimiter.h"
 #include "services/device/device_service/device_service_platform_provider.h"
+
+frequencyLimiter FrequencyLimiter;
 
 namespace device {
 
@@ -18,6 +21,7 @@ DeviceServiceProviderImpl::DeviceServiceProviderImpl(
     std::unique_ptr<DeviceServicePlatformProvider> platform_provider)
     : last_update_(0), platform_provider_(std::move(platform_provider)) {
   DCHECK(platform_provider_);
+
   platform_provider_->SetServiceProvider(this);
   // We need to  listen to disconnections so that if there is nobody interested
   // in service changes we can shutdown the native backends.
@@ -42,6 +46,7 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
     uint32_t thread_id,
     mojom::Capacity capacity,
     SubmitTaskCapacityHintCallback callback) {
+
   if (system_time < last_update_) {
     std::move(callback).Run(-1);
 
@@ -70,8 +75,10 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         #if BUILDFLAG(ENABLE_IPF)
-        GearDown();
+        GearDown(); //if > floor then newvalues for current - 8*steps+Min=Max Max-Min/8 and > min else min = steps
         #endif
+
+        FrequencyLimiter.GearDown(10); //rrw
 
         break;
       case mojom::Capacity::kCapacityUnder:
@@ -81,8 +88,11 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         #if BUILDFLAG(ENABLE_IPF)
-        GearDown();
+        GearDown(); //if > floor then newvalues for current - 8*steps+Min=Max Max-Min/8 = steps
         #endif
+        FrequencyLimiter.GearDown(10); //rrw
+
+        //FrequencyLimiter.GearDown(10); //rrw
 
         break;
       case mojom::Capacity::kCapacityMeet:
@@ -90,8 +100,9 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "MEET";
         #endif
 
-        #if BUILDFLAG(ENABLE_IPF)
+        #if BUILDFLAG(ENABLE_IPF) //if < min + step else if !prev then (-step and clear prev) else do nothing
         #endif
+        FrequencyLimiter.GearDown(10); //rrw
 
         break;
       case mojom::Capacity::kCapacityOver:
@@ -100,8 +111,10 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         #if BUILDFLAG(ENABLE_IPF)
-        GearUp();
+        GearUp(); //set to  0 0 0 0 
         #endif
+
+        FrequencyLimiter.GearUp(100); //rrw
 
         break;
     }

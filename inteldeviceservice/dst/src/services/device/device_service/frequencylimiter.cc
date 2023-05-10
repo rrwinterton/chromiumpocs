@@ -95,9 +95,8 @@ int32_t frequencyLimiter::CalculateFrequency(uint32_t &MaxFrequency)
 #else
       sum = std::accumulate(frequencies.begin(), frequencies.end(), 0);
       average = (double)sum / frequencies.size();
-      Sleep(1);
 #endif
-
+      Sleep(1);
       tsc2 = __rdtsc();
       QueryPerformanceCounter(&end);
       elapsed = (end.QuadPart - start.QuadPart) / (double)freq.QuadPart;
@@ -123,7 +122,7 @@ int32_t frequencyLimiter::CalculateFrequency(uint32_t &MaxFrequency)
     m_MaxFrequency = static_cast<uint32_t>(average);
 #endif
   }
-  MaxFrequency = 4000; // m_MaxFrequency;
+  MaxFrequency = 4000; //m_MaxFrequency;
   return 0;
 }
 
