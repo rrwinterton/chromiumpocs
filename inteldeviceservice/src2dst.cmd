@@ -38,6 +38,8 @@ xcopy "%srcpath%\src\services\device\device_service\device_service_platform_prov
 xcopy "%srcpath%\src\services\device\device_service\device_service_platform_provider.h" "%dstpath%\src\services\device\device_service\*"
 xcopy "%srcpath%\src\services\device\device_service\device_service_provider_impl.cc" "%dstpath%\src\services\device\device_service\*"
 xcopy "%srcpath%\src\services\device\device_service\device_service_provider_impl.h" "%dstpath%\src\services\device\device_service\*"
+xcopy "%srcpath%\src\services\device\device_service\frequencylimiter.cc" "%dstpath%\src\services\device\device_service\*"
+xcopy "%srcpath%\src\services\device\device_service\frequencylimiter.h" "%dstpath%\src\services\device\device_service\*"
 echo "services\device\public\cpp\test"
 xcopy "%srcpath%\src\services\device\public\cpp\test\fake_device_service_provider.cc" "%dstpath%\src\services\device\public\cpp\test\*"
 xcopy "%srcpath%\src\services\device\public\cpp\test\fake_device_service_provider.h" "%dstpath%\src\services\device\public\cpp\test\*"

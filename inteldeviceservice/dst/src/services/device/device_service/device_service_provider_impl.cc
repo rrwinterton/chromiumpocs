@@ -9,8 +9,11 @@
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "mojo/public/cpp/bindings/remote_set.h"
+#include "services/device/device_service/frequencylimiter.h"
 #include "services/device/device_service/device_service_platform_provider.h"
 #include "third_party/blink/public/common/switches.h"
+
+frequencyLimiter FrequencyLimiter;
 
 namespace device {
 
@@ -20,6 +23,7 @@ DeviceServiceProviderImpl::DeviceServiceProviderImpl(
     std::unique_ptr<DeviceServicePlatformProvider> platform_provider)
     : last_update_(0), platform_provider_(std::move(platform_provider)) {
   DCHECK(platform_provider_);
+
   platform_provider_->SetServiceProvider(this);
   // We need to  listen to disconnections so that if there is nobody interested
   // in service changes we can shutdown the native backends.
@@ -44,6 +48,7 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
     uint32_t thread_id,
     mojom::Capacity capacity,
     SubmitTaskCapacityHintCallback callback) {
+
   if (system_time < last_update_) {
     std::move(callback).Run(-1);
 
@@ -72,15 +77,16 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "IDLE";
         #endif
 
-        // TODO: Add frequency changes for idle here
         if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-
+          FrequencyLimiter.GearDown(10); //rrw
         }
 
         #if BUILDFLAG(ENABLE_IPF)
           else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
             GearDown();
         #endif
+
+        
 
         break;
       case mojom::Capacity::kCapacityUnder:
@@ -89,15 +95,15 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
           enum_name = "UNDER";
         #endif
 
-        // TODO: Add frequency changes for under here
         if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-
+          FrequencyLimiter.GearDown(10); //rrw
         }
 
         #if BUILDFLAG(ENABLE_IPF)
         else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
           GearDown();
         #endif
+        
 
         break;
       case mojom::Capacity::kCapacityMeet:
@@ -105,14 +111,14 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "MEET";
         #endif
 
-        // TODO: Add frequency changes for meet here
         if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-
+          FrequencyLimiter.GearDown(10); //rrw
         }
 
         #if BUILDFLAG(ENABLE_IPF)
         else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
         #endif
+        
 
         break;
       case mojom::Capacity::kCapacityOver:
@@ -122,13 +128,15 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
 
         // TODO: Add frequency changes for high here
         if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-
+          FrequencyLimiter.GearUp(100); //rrw
         }
 
         #if BUILDFLAG(ENABLE_IPF)
         else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
           GearUp();
         #endif
+
+        
 
         break;
     }
