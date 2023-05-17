@@ -152,27 +152,18 @@ int32_t frequencyLimiter::SetCoreMaxFrequency(int Core,
                                               uint32_t DCMaxFrequency)
 {
   DWORD ReturnValue = ERROR_SUCCESS;
-  GUID *guid;
-
-  guid = new GUID();
-  if (guid == NULL)
-  {
-    ReturnValue = GUID_ALLOCATION_ERROR;
-    goto GracefulExit;
-  }
-
   
   if (Core == PCORE)
   {
     ReturnValue =
-        PowerWriteACValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
+        PowerWriteACValueIndex(NULL, activeScheme, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
                                &m_PCoreGuid, ACMaxFrequency);
     if (ReturnValue != ERROR_SUCCESS)
     {
       goto GracefulExit;
     }
     ReturnValue =
-        PowerWriteDCValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
+        PowerWriteDCValueIndex(NULL, activeScheme, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
                                &m_PCoreGuid, DCMaxFrequency);
     if (ReturnValue != ERROR_SUCCESS)
     {
@@ -186,21 +177,21 @@ int32_t frequencyLimiter::SetCoreMaxFrequency(int Core,
       goto GracefulExit;
     }
     ReturnValue =
-        PowerWriteACValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
+        PowerWriteACValueIndex(NULL, activeScheme, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
                                &m_ECoreGuid, ACMaxFrequency);
     if (ReturnValue != ERROR_SUCCESS)
     {
       goto GracefulExit;
     }
     ReturnValue =
-        PowerWriteDCValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
+        PowerWriteDCValueIndex(NULL, activeScheme, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
                                &m_ECoreGuid, DCMaxFrequency);
     if (ReturnValue != ERROR_SUCCESS)
     {
       goto GracefulExit;
     }
   }
-  ReturnValue = PowerSetActiveScheme(NULL, guid);
+  ReturnValue = PowerSetActiveScheme(NULL, activeScheme);
 
 GracefulExit:
   return ReturnValue;
