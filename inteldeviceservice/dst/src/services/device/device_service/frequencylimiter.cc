@@ -44,6 +44,11 @@ frequencyLimiter::frequencyLimiter()
   {
     SetCoreMaxFrequency(ECORE, 0, 0);
   }
+
+  activeScheme = new GUID();
+  PowerGetActiveScheme(NULL, &activeScheme);
+
+  GearAtMax = true;
 }
 
 // frequencyLimiter class destructor
@@ -146,7 +151,7 @@ int32_t frequencyLimiter::SetCoreMaxFrequency(int Core,
                                               uint32_t ACMaxFrequency,
                                               uint32_t DCMaxFrequency)
 {
-  DWORD ReturnValue;
+  DWORD ReturnValue = ERROR_SUCCESS;
   GUID *guid;
 
   guid = new GUID();
@@ -156,11 +161,7 @@ int32_t frequencyLimiter::SetCoreMaxFrequency(int Core,
     goto GracefulExit;
   }
 
-  ReturnValue = PowerGetActiveScheme(NULL, &guid);
-  if (ReturnValue != ERROR_SUCCESS)
-  {
-    goto GracefulExit;
-  }
+  
   if (Core == PCORE)
   {
     ReturnValue =
@@ -385,6 +386,7 @@ int32_t frequencyLimiter::GearDown(int32_t Count)
                           m_CurrentDCFrequency - eCoreOffset);
     }
   }
+  GearAtMax = false;
 GracefulExit:
   return 0;
 }
@@ -394,7 +396,7 @@ int32_t frequencyLimiter::GearUp(int32_t Count)
   float CurrentGear, Max_Gear_Stepping;
   uint32_t dcOffset, eCoreOffset;
 
-  if ((0 == Count) || (Count > MAX_KNOBS))
+  if ((0 == Count) || (Count > MAX_KNOBS) || GearAtMax)
   {
     goto GracefulExit;
   }

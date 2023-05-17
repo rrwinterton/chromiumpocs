@@ -71,6 +71,61 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
 
     const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
     switch (last_capacity_) {
+      case mojom::Capacity::kCapacityOver:
+
+
+        #if BUILDFLAG(ENABLE_LOGGING)
+        enum_name = "OVER";
+        #endif
+
+        // TODO: Add frequency changes for high here
+        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
+          FrequencyLimiter.GearUp(100); //rrw
+        }
+
+        #if BUILDFLAG(ENABLE_IPF)
+        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+          GearUp();
+        #endif
+
+        break;
+
+
+      case mojom::Capacity::kCapacityMeet:
+        #if BUILDFLAG(ENABLE_LOGGING)
+        enum_name = "MEET";
+        #endif
+
+        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
+          FrequencyLimiter.GearDown(10); //rrw
+        }
+
+        #if BUILDFLAG(ENABLE_IPF)
+        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+        #endif
+        
+
+        break;
+
+      case mojom::Capacity::kCapacityUnder:
+
+        #if BUILDFLAG(ENABLE_LOGGING)
+          enum_name = "UNDER";
+        #endif
+
+        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
+          FrequencyLimiter.GearDown(10); //rrw
+        }
+
+        #if BUILDFLAG(ENABLE_IPF)
+        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+          GearDown();
+        #endif
+        
+
+        break;
+
+
       case mojom::Capacity::kCapacityIdle:
 
         #if BUILDFLAG(ENABLE_LOGGING)
@@ -89,56 +144,8 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         
 
         break;
-      case mojom::Capacity::kCapacityUnder:
-
-        #if BUILDFLAG(ENABLE_LOGGING)
-          enum_name = "UNDER";
-        #endif
-
-        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-          FrequencyLimiter.GearDown(10); //rrw
-        }
-
-        #if BUILDFLAG(ENABLE_IPF)
-        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
-          GearDown();
-        #endif
-        
-
-        break;
-      case mojom::Capacity::kCapacityMeet:
-        #if BUILDFLAG(ENABLE_LOGGING)
-        enum_name = "MEET";
-        #endif
-
-        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-          FrequencyLimiter.GearDown(10); //rrw
-        }
-
-        #if BUILDFLAG(ENABLE_IPF)
-        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
-        #endif
-        
-
-        break;
-      case mojom::Capacity::kCapacityOver:
-        #if BUILDFLAG(ENABLE_LOGGING)
-        enum_name = "OVER";
-        #endif
-
-        // TODO: Add frequency changes for high here
-        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-          FrequencyLimiter.GearUp(100); //rrw
-        }
-
-        #if BUILDFLAG(ENABLE_IPF)
-        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
-          GearUp();
-        #endif
-
-        
-
-        break;
+      
+      
     }
 
     #if BUILDFLAG(ENABLE_LOGGING)
