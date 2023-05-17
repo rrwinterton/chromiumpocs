@@ -51,8 +51,8 @@ public:
 	~frequencyLimiter();
 	int32_t CalculateFrequency(uint32_t &MaxFrequency);
 	int IsHybridCore(bool &IsHybrid); // Returns true if core is hybrid doesn't check OS yet
-	int32_t GearDown(uint32_t Count);
-	int32_t GearUp(uint32_t Count);
+	int32_t GearDown(int32_t Count);
+	int32_t GearUp(int32_t Count);
 
 #ifdef DO_UNIT_TEST
 	int GetCoreMaxFrequency(int CoreType, uint32_t &ACMaxFrequency, uint32_t &DCMaxFrequency); // Specified core max frequencies for AC and DC

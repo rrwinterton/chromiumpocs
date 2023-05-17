@@ -330,7 +330,7 @@ uint32_t frequencyLimiter::SetSteppingKnobs(uint32_t Stepping)
 }
 */
 
-int32_t frequencyLimiter::GearDown(uint32_t Count)
+int32_t frequencyLimiter::GearDown(int32_t Count)
 {
   float CurrentGear, Max_Gear_Stepping;
   uint32_t dcOffset, eCoreOffset;
@@ -389,7 +389,7 @@ GracefulExit:
   return 0;
 }
 
-int32_t frequencyLimiter::GearUp(uint32_t Count)
+int32_t frequencyLimiter::GearUp(int32_t Count)
 {
   float CurrentGear, Max_Gear_Stepping;
   uint32_t dcOffset, eCoreOffset;
