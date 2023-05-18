@@ -285,12 +285,6 @@ BASE_FEATURE(kDevicePosture,
              "DevicePosture",
              base::FEATURE_DISABLED_BY_DEFAULT);
 
-/*
-// Enable the device service API.
-// Tracking bug for enabling device service API
-BASE_FEATURE(kDeviceService, "DeviceService", base::FEATURE_ENABLED_BY_DEFAULT);
-*/
-
 // Enable Hardware Profiling
 BASE_FEATURE(kHardwareProfiling,
              "HardwareProfiling",

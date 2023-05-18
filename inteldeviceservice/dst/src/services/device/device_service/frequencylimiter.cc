@@ -44,6 +44,11 @@ frequencyLimiter::frequencyLimiter()
   {
     SetCoreMaxFrequency(ECORE, 0, 0);
   }
+
+  activeScheme = new GUID();
+  PowerGetActiveScheme(NULL, &activeScheme);
+
+  GearAtMax = true;
 }
 
 // frequencyLimiter class destructor
@@ -146,32 +151,19 @@ int32_t frequencyLimiter::SetCoreMaxFrequency(int Core,
                                               uint32_t ACMaxFrequency,
                                               uint32_t DCMaxFrequency)
 {
-  DWORD ReturnValue;
-  GUID *guid;
-
-  guid = new GUID();
-  if (guid == NULL)
-  {
-    ReturnValue = GUID_ALLOCATION_ERROR;
-    goto GracefulExit;
-  }
-
-  ReturnValue = PowerGetActiveScheme(NULL, &guid);
-  if (ReturnValue != ERROR_SUCCESS)
-  {
-    goto GracefulExit;
-  }
+  DWORD ReturnValue = ERROR_SUCCESS;
+  
   if (Core == PCORE)
   {
     ReturnValue =
-        PowerWriteACValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
+        PowerWriteACValueIndex(NULL, activeScheme, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
                                &m_PCoreGuid, ACMaxFrequency);
     if (ReturnValue != ERROR_SUCCESS)
     {
       goto GracefulExit;
     }
     ReturnValue =
-        PowerWriteDCValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
+        PowerWriteDCValueIndex(NULL, activeScheme, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
                                &m_PCoreGuid, DCMaxFrequency);
     if (ReturnValue != ERROR_SUCCESS)
     {
@@ -185,21 +177,21 @@ int32_t frequencyLimiter::SetCoreMaxFrequency(int Core,
       goto GracefulExit;
     }
     ReturnValue =
-        PowerWriteACValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
+        PowerWriteACValueIndex(NULL, activeScheme, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
                                &m_ECoreGuid, ACMaxFrequency);
     if (ReturnValue != ERROR_SUCCESS)
     {
       goto GracefulExit;
     }
     ReturnValue =
-        PowerWriteDCValueIndex(NULL, guid, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
+        PowerWriteDCValueIndex(NULL, activeScheme, &GUID_PROCESSOR_SETTINGS_SUBGROUP,
                                &m_ECoreGuid, DCMaxFrequency);
     if (ReturnValue != ERROR_SUCCESS)
     {
       goto GracefulExit;
     }
   }
-  ReturnValue = PowerSetActiveScheme(NULL, guid);
+  ReturnValue = PowerSetActiveScheme(NULL, activeScheme);
 
 GracefulExit:
   return ReturnValue;
@@ -330,7 +322,7 @@ uint32_t frequencyLimiter::SetSteppingKnobs(uint32_t Stepping)
 }
 */
 
-int32_t frequencyLimiter::GearDown(uint32_t Count)
+int32_t frequencyLimiter::GearDown(int32_t Count)
 {
   float CurrentGear, Max_Gear_Stepping;
   uint32_t dcOffset, eCoreOffset;
@@ -385,16 +377,17 @@ int32_t frequencyLimiter::GearDown(uint32_t Count)
                           m_CurrentDCFrequency - eCoreOffset);
     }
   }
+  GearAtMax = false;
 GracefulExit:
   return 0;
 }
 
-int32_t frequencyLimiter::GearUp(uint32_t Count)
+int32_t frequencyLimiter::GearUp(int32_t Count)
 {
   float CurrentGear, Max_Gear_Stepping;
   uint32_t dcOffset, eCoreOffset;
 
-  if ((0 == Count) || (Count > MAX_KNOBS))
+  if ((0 == Count) || (Count > MAX_KNOBS) || GearAtMax)
   {
     goto GracefulExit;
   }

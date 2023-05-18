@@ -7,6 +7,8 @@
 #include <windows.h>
 #include "third_party/blink/renderer/platform/scheduler/common/device_capacity.h"
 #include "third_party/blink/public/common/features.h"
+#include "third_party/blink/public/common/switches.h"
+#include "base/command_line.h"
 // rrw
 #include <algorithm>
 
@@ -110,7 +112,8 @@ void ThreadLoadTracker::Advance(base::TimeTicks now, TaskState task_state) {
     time_ = next_current_time;
     // rrw
     float tmp_load = Load();
-    if (base::FeatureList::IsEnabled(blink::features::kDeviceService)) {
+    const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+    if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) != blink::switches::kDeviceServiceDisabled) {
       device_capacity_.SetCapacity(tmp_load);
       device_capacity_.GetWeightedCapacity(tmp_load);
     }
