@@ -23,6 +23,10 @@
 #define GUID_ALLOCATION_ERROR -3
 #define CALCULATE_FREQUENCY_ERROR -4
 
+static bool m_bCalculatedMaxFreq = false;
+static uint32_t m_MaxFrequency = 0;
+static uint32_t m_MinFrequency = 0;
+
 // frequencyLimiter class
 class frequencyLimiter
 {
@@ -34,14 +38,13 @@ private:
 	// variables
 	uint32_t m_CurrentACFrequency;
 	uint32_t m_CurrentDCFrequency;
-	uint32_t m_MaxFrequency;
-	uint32_t m_MinFrequency;
 	int32_t m_CurrentGear;
 	bool m_IsHybrid;
 	GUID m_PCoreGuid;
 	GUID m_ECoreGuid;
 	GUID *activeScheme;
 	bool GearAtMax;
+	bool GearAtMin;
 	//	float m_SteppingScale;
 #ifndef DO_UNIT_TEST
 	// GetCoreMaxFrequency: Gets specified core max frequencies for AC and DC
@@ -51,7 +54,7 @@ private:
 public:
 	frequencyLimiter();
 	~frequencyLimiter();
-	int32_t CalculateFrequency(uint32_t &MaxFrequency);
+	int32_t CalculateFrequency();
 	int IsHybridCore(bool &IsHybrid); // Returns true if core is hybrid doesn't check OS yet
 	int32_t GearDown(int32_t Count);
 	int32_t GearUp(int32_t Count);

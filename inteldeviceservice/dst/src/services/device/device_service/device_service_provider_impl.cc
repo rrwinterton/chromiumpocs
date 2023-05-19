@@ -97,7 +97,7 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-          FrequencyLimiter.GearDown(10); //rrw
+          //FrequencyLimiter.GearDown(10); //rrw
         }
 
         #if BUILDFLAG(ENABLE_IPF)
