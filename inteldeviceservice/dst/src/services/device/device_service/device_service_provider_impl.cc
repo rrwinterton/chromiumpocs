@@ -78,7 +78,6 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "OVER";
         #endif
 
-        // TODO: Add frequency changes for high here
         if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
           FrequencyLimiter.GearUp(100); //rrw
         }
@@ -97,7 +96,6 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-          FrequencyLimiter.GearDown(10); //rrw
         }
 
         #if BUILDFLAG(ENABLE_IPF)

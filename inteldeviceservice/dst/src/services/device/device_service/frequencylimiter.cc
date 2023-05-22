@@ -22,11 +22,12 @@ frequencyLimiter::frequencyLimiter()
 
   // rrw
   m_CurrentGear = MAX_KNOBS;
-  m_MaxFrequency = 0;
-
-  CalculateFrequency(m_MaxFrequency);
-  SetMinFrequency(); // TODO:rrw
-  // rrw
+  if(!m_bCalculatedMaxFreq)
+  {
+    CalculateFrequency();
+    SetMinFrequency(); // TODO:rrw
+  }
+  m_bCalculatedMaxFreq = true;
 
   m_IsHybrid = IsIntelHybrid();
   if (m_IsHybrid)
@@ -38,6 +39,8 @@ frequencyLimiter::frequencyLimiter()
   {
     m_PCoreGuid = GUID_PROCESSOR_FREQUENCY_LIMIT;
   }
+  activeScheme = new GUID();
+  PowerGetActiveScheme(NULL, &activeScheme);
 
   SetCoreMaxFrequency(PCORE, 0, 0);
   if (m_IsHybrid)
@@ -45,10 +48,8 @@ frequencyLimiter::frequencyLimiter()
     SetCoreMaxFrequency(ECORE, 0, 0);
   }
 
-  activeScheme = new GUID();
-  PowerGetActiveScheme(NULL, &activeScheme);
-
   GearAtMax = true;
+  GearAtMin = false;
 }
 
 // frequencyLimiter class destructor
@@ -62,7 +63,7 @@ frequencyLimiter::~frequencyLimiter()
 }
 
 // frequencyLimiter::calculateFrequency
-int32_t frequencyLimiter::CalculateFrequency(uint32_t &MaxFrequency)
+int32_t frequencyLimiter::CalculateFrequency()
 {
   std::vector<double> frequencies;
   LARGE_INTEGER freq;
@@ -127,7 +128,6 @@ int32_t frequencyLimiter::CalculateFrequency(uint32_t &MaxFrequency)
     m_MaxFrequency = static_cast<uint32_t>(average);
 #endif
   }
-  MaxFrequency = 4000; //m_MaxFrequency;
   return 0;
 }
 
@@ -327,10 +327,11 @@ int32_t frequencyLimiter::GearDown(int32_t Count)
   float CurrentGear, Max_Gear_Stepping;
   uint32_t dcOffset, eCoreOffset;
 
-  if ((0 == Count) || (Count > MAX_KNOBS))
+  if ((0 == Count) || (Count > MAX_KNOBS) || GearAtMin)
   {
     goto GracefulExit;
   }
+
   if (m_CurrentGear - Count > 0)
   {
     m_CurrentGear -= Count;
@@ -369,13 +370,14 @@ int32_t frequencyLimiter::GearDown(int32_t Count)
       dcOffset = 0;
       eCoreOffset = 0;
     }
-    m_CurrentDCFrequency = m_CurrentACFrequency - dcOffset;
+    m_CurrentDCFrequency = m_CurrentACFrequency - dcOffset;    
     SetCoreMaxFrequency(PCORE, m_CurrentACFrequency, m_CurrentDCFrequency);
     if (m_IsHybrid)
     {
       SetCoreMaxFrequency(ECORE, m_CurrentACFrequency - eCoreOffset,
                           m_CurrentDCFrequency - eCoreOffset);
     }
+    GearAtMin= true;
   }
   GearAtMax = false;
 GracefulExit:
@@ -386,11 +388,12 @@ int32_t frequencyLimiter::GearUp(int32_t Count)
 {
   float CurrentGear, Max_Gear_Stepping;
   uint32_t dcOffset, eCoreOffset;
-
+  GearAtMin= false;
   if ((0 == Count) || (Count > MAX_KNOBS) || GearAtMax)
   {
     goto GracefulExit;
   }
+  GearAtMax = true;
   if (m_CurrentGear + Count < MAX_KNOBS)
   {
     m_CurrentGear += Count;
