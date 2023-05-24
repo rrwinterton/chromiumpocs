@@ -30,6 +30,15 @@ DeviceServiceProviderImpl::DeviceServiceProviderImpl(
   receivers_.set_disconnect_handler(
       base::BindRepeating(&DeviceServiceProviderImpl::OnReceiverConnectionError,
                           weak_ptr_factory_.GetWeakPtr()));
+  const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency)
+      deviceServiceFlag = 1;
+  #if BUILDFLAG(ENABLE_IPF)
+  else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+      deviceServiceFlag = 2;
+  #endif
+  else
+      deviceServiceFlag = 0;
 }
 
 DeviceServiceProviderImpl::~DeviceServiceProviderImpl() = default;
@@ -69,7 +78,6 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
     const char* enum_name = "";
     #endif
 
-    const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
     switch (last_capacity_) {
       case mojom::Capacity::kCapacityOver:
 
@@ -78,12 +86,12 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "OVER";
         #endif
 
-        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
+        if (deviceServiceFlag == 1) {
           FrequencyLimiter.GearUp(100); //rrw
         }
 
         #if BUILDFLAG(ENABLE_IPF)
-        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+        else if (deviceServiceFlag == 2)
           GearUp();
         #endif
 
@@ -95,11 +103,8 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "MEET";
         #endif
 
-        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-        }
-
         #if BUILDFLAG(ENABLE_IPF)
-        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+        else if (deviceServiceFlag == 2)
         #endif
         
 
@@ -111,12 +116,12 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
           enum_name = "UNDER";
         #endif
 
-        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
+        if (deviceServiceFlag == 1) {
           FrequencyLimiter.GearDown(10); //rrw
         }
 
         #if BUILDFLAG(ENABLE_IPF)
-        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+        else if (deviceServiceFlag == 2)
           GearDown();
         #endif
         
@@ -130,12 +135,12 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "IDLE";
         #endif
 
-        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
+        if (deviceServiceFlag == 1) {
           FrequencyLimiter.GearDown(10); //rrw
         }
 
         #if BUILDFLAG(ENABLE_IPF)
-          else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+          else if (deviceServiceFlag == 2)
             GearDown();
         #endif
 

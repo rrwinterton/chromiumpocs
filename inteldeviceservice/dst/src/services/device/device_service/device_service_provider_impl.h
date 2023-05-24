@@ -59,6 +59,7 @@ class DeviceServiceProviderImpl : public mojom::DeviceServiceProvider {
   // Since we are currently only performing updates at the system level, we will
   // collapse all requesting into a single set of variables.
   uint32_t last_update_;
+  uint32_t deviceServiceFlag;
   mojom::Capacity last_capacity_;
 
   std::unique_ptr<DeviceServicePlatformProvider> platform_provider_;
