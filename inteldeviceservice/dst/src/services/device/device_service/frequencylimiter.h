@@ -43,8 +43,6 @@ private:
 	GUID m_PCoreGuid;
 	GUID m_ECoreGuid;
 	GUID *activeScheme;
-	bool GearAtMax;
-	bool GearAtMin;
 	//	float m_SteppingScale;
 #ifndef DO_UNIT_TEST
 	// GetCoreMaxFrequency: Gets specified core max frequencies for AC and DC
