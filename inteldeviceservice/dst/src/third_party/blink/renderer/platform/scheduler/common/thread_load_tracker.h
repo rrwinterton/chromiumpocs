@@ -73,6 +73,8 @@ class PLATFORM_EXPORT ThreadLoadTracker {
   DeviceCapacity device_capacity_;
   // eg
 
+  bool deviceServiceFlag;
+
   
 };
 }  // namespace scheduler
