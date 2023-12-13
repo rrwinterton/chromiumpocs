@@ -22,11 +22,8 @@ source_set("device_service") {
     "//services/device/public/mojom",
   ]
 
-  libs = [
-    "ipf/CustomPOC_ETW.lib",
-  ]
   if (enable_ipf) {
-    libs += [
+    libs = [
       "ipf/ipf_control.lib",
       "ipf/ipfcorelib.lib",
     ]
