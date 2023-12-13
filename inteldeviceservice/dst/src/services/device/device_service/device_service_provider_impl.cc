@@ -4,8 +4,6 @@
 
 #include "services/device/device_service/device_service_provider_impl.h"
 
-#include <windows.h>
-
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "mojo/public/cpp/bindings/remote_set.h"
@@ -67,7 +65,10 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
 
     return;
   }
-
+  phandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, process_id);
+  PROCESS_POWER_THROTTLING_STATE PowerThrottling;
+  RtlZeroMemory(&PowerThrottling, sizeof(PowerThrottling));
+  PowerThrottling.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION;
   if (capacity > last_capacity_) {
     last_capacity_ = capacity;
   }
@@ -87,7 +88,16 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         if (deviceServiceFlag == 1) {
-          FrequencyLimiter.GearUp(100); //rrw
+          if (isEco) {
+            PowerThrottling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+            PowerThrottling.StateMask = 0;
+
+            SetProcessInformation(phandle, 
+                        ProcessPowerThrottling, 
+                        &PowerThrottling,
+                        sizeof(PowerThrottling));
+            isEco = false;
+          }
         }
 
         #if BUILDFLAG(ENABLE_IPF)
@@ -117,7 +127,16 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         if (deviceServiceFlag == 1) {
-          FrequencyLimiter.GearDown(10); //rrw
+          if (!isEco){
+            PowerThrottling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+            PowerThrottling.StateMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+
+            SetProcessInformation(phandle, 
+                        ProcessPowerThrottling, 
+                        &PowerThrottling,
+                        sizeof(PowerThrottling));
+            isEco = true;
+          }
         }
 
         #if BUILDFLAG(ENABLE_IPF)
@@ -136,7 +155,16 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         if (deviceServiceFlag == 1) {
-          FrequencyLimiter.GearDown(10); //rrw
+          if (isEco) {
+            PowerThrottling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+            PowerThrottling.StateMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+
+            SetProcessInformation(phandle, 
+                        ProcessPowerThrottling, 
+                        &PowerThrottling,
+                        sizeof(PowerThrottling));
+            isEco = true;
+          }
         }
 
         #if BUILDFLAG(ENABLE_IPF)
@@ -152,8 +180,10 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
     }
 
     #if BUILDFLAG(ENABLE_LOGGING)
-    LOG(ERROR) << ::GetCurrentProcessId() << " time, " << system_time << " pid, " << process_id << " tid, " << thread_id << ", " << enum_name;
+    LOG(ERROR) << ::GetCurrentProcessId() << " time, " << system_time << " pid, " << process_id << " tid, " << thread_id << ", " << enum_name << "Render process handle: " << phandle << " Browser process handle: " << GetCurrentProcess();
     #endif
+
+    CloseHandle(phandle);
 
     last_update_ = system_time;
     last_capacity_ = mojom::Capacity::kCapacityIdle;

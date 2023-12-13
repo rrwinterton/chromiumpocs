@@ -61,3 +61,13 @@ public:
 	int GetCoreMaxFrequency(int CoreType, uint32_t &ACMaxFrequency, uint32_t &DCMaxFrequency); // Specified core max frequencies for AC and DC
 #endif
 };
+
+typedef unsigned int u32;
+extern "C" {
+void IPF_etw_register();
+void IPF_etw_unregister();
+
+void IPF_etw_log_GearUp(u32 pl1 = 0, u32 pl2 = 0, u32 CPUpower = 0);
+void IPF_etw_log_GearDown(u32 pl1 = 0, u32 pl2 = 0, u32 CPUpower = 0);
+void IPF_etw_log_event(u32 i = 0, const char* logmsg = "");
+}

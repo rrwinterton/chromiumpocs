@@ -48,6 +48,8 @@ frequencyLimiter::frequencyLimiter()
     SetCoreMaxFrequency(ECORE, 0, 0);
   }
 
+  IPF_etw_register();
+
 }
 
 // frequencyLimiter class destructor
@@ -58,6 +60,8 @@ frequencyLimiter::~frequencyLimiter()
   {
     SetCoreMaxFrequency(ECORE, 0, 0);
   }
+
+  IPF_etw_unregister();
 }
 
 // frequencyLimiter::calculateFrequency
@@ -329,6 +333,7 @@ int32_t frequencyLimiter::GearDown(int32_t Count)
   {
     goto GracefulExit;
   }
+  IPF_etw_log_GearDown(0, 0);
   if (m_CurrentACFrequency == 0) 
   {
     m_CurrentACFrequency = m_MaxFrequency;
@@ -392,6 +397,7 @@ int32_t frequencyLimiter::GearUp(int32_t Count)
   {
     goto GracefulExit;
   }
+  IPF_etw_log_GearUp(0, 0);
   if (m_CurrentGear + Count < MAX_KNOBS)
   {
     m_CurrentGear += Count;
