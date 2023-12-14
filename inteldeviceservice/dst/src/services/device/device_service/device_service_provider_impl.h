@@ -63,7 +63,6 @@ class DeviceServiceProviderImpl : public mojom::DeviceServiceProvider {
   uint32_t last_update_;
   uint32_t deviceServiceFlag;
   mojom::Capacity last_capacity_;
-  HANDLE phandle;
   bool isEco = false;
 
   std::unique_ptr<DeviceServicePlatformProvider> platform_provider_;

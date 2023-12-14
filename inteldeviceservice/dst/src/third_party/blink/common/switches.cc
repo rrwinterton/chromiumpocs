@@ -207,6 +207,7 @@ const char kDeviceService[] = "device-service";
 
 const char kDeviceServiceIPF[] = "ipf";
 const char kDeviceServiceFrequency[] = "frequency";
+const char kDeviceServiceQOS[] = "qos";
 const char kDeviceServiceDisabled[] = "disabled";
 
 }  // namespace switches

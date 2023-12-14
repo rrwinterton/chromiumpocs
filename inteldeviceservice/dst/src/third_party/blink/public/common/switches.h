@@ -23,6 +23,7 @@ BLINK_COMMON_EXPORT extern const char kDefaultTileWidth[];
 BLINK_COMMON_EXPORT extern const char kDeviceService[];
 BLINK_COMMON_EXPORT extern const char kDeviceServiceIPF[];
 BLINK_COMMON_EXPORT extern const char kDeviceServiceFrequency[];
+BLINK_COMMON_EXPORT extern const char kDeviceServiceQOS[];
 BLINK_COMMON_EXPORT extern const char kDeviceServiceDisabled[];
 BLINK_COMMON_EXPORT extern const char kDisableImageAnimationResync[];
 BLINK_COMMON_EXPORT extern const char kDisableLowResTiling[];

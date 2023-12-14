@@ -13,6 +13,33 @@
 
 frequencyLimiter FrequencyLimiter;
 
+void setEcoQos(uint32_t pid) {
+    HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+    PROCESS_POWER_THROTTLING_STATE PowerThrottling;
+    RtlZeroMemory(&PowerThrottling, sizeof(PowerThrottling));
+    PowerThrottling.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION;
+    PowerThrottling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+    PowerThrottling.StateMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+    SetProcessInformation(phandle, 
+                        ProcessPowerThrottling, 
+                        &PowerThrottling,
+                        sizeof(PowerThrottling));
+    CloseHandle(phandle);
+}
+
+void setHighQos(uint32_t pid) {
+    HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+    PROCESS_POWER_THROTTLING_STATE PowerThrottling;
+    RtlZeroMemory(&PowerThrottling, sizeof(PowerThrottling));
+    PowerThrottling.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION;
+    PowerThrottling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+    PowerThrottling.StateMask = 0;
+    SetProcessInformation(phandle, 
+                        ProcessPowerThrottling, 
+                        &PowerThrottling,
+                        sizeof(PowerThrottling));
+    CloseHandle(phandle);
+}
 namespace device {
 
 constexpr uint32_t kUpdateIntervalMS = 50;
@@ -31,6 +58,8 @@ DeviceServiceProviderImpl::DeviceServiceProviderImpl(
   const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
   if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency)
       deviceServiceFlag = 1;
+  else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceQOS)
+      deviceServiceFlag = 3;
   #if BUILDFLAG(ENABLE_IPF)
   else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
       deviceServiceFlag = 2;
@@ -65,10 +94,7 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
 
     return;
   }
-  phandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, process_id);
-  PROCESS_POWER_THROTTLING_STATE PowerThrottling;
-  RtlZeroMemory(&PowerThrottling, sizeof(PowerThrottling));
-  PowerThrottling.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION;
+  
   if (capacity > last_capacity_) {
     last_capacity_ = capacity;
   }
@@ -88,14 +114,12 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         if (deviceServiceFlag == 1) {
-          if (isEco) {
-            PowerThrottling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
-            PowerThrottling.StateMask = 0;
+          FrequencyLimiter.GearUp(100);
+        }
 
-            SetProcessInformation(phandle, 
-                        ProcessPowerThrottling, 
-                        &PowerThrottling,
-                        sizeof(PowerThrottling));
+        else if (deviceServiceFlag == 3) {
+          if (isEco) {
+            setHighQos(process_id);
             isEco = false;
           }
         }
@@ -127,14 +151,12 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         if (deviceServiceFlag == 1) {
-          if (!isEco){
-            PowerThrottling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
-            PowerThrottling.StateMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+          FrequencyLimiter.GearDown(10);
+        }
 
-            SetProcessInformation(phandle, 
-                        ProcessPowerThrottling, 
-                        &PowerThrottling,
-                        sizeof(PowerThrottling));
+        else if (deviceServiceFlag == 3) {
+          if (!isEco){
+            setEcoQos(process_id);
             isEco = true;
           }
         }
@@ -155,14 +177,12 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         #endif
 
         if (deviceServiceFlag == 1) {
-          if (isEco) {
-            PowerThrottling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
-            PowerThrottling.StateMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+          FrequencyLimiter.GearDown(10);
+        }
 
-            SetProcessInformation(phandle, 
-                        ProcessPowerThrottling, 
-                        &PowerThrottling,
-                        sizeof(PowerThrottling));
+        else if (deviceServiceFlag == 3) {
+          if (isEco) {
+            setEcoQos(process_id);
             isEco = true;
           }
         }
@@ -182,8 +202,6 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
     #if BUILDFLAG(ENABLE_LOGGING)
     LOG(ERROR) << ::GetCurrentProcessId() << " time, " << system_time << " pid, " << process_id << " tid, " << thread_id << ", " << enum_name << "Render process handle: " << phandle << " Browser process handle: " << GetCurrentProcess();
     #endif
-
-    CloseHandle(phandle);
 
     last_update_ = system_time;
     last_capacity_ = mojom::Capacity::kCapacityIdle;

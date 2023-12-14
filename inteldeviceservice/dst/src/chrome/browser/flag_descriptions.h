@@ -543,6 +543,7 @@ extern const char kDeviceServiceDescription[];
 extern const char kDeviceServiceDefault[];
 extern const char kDeviceServiceIPF[];
 extern const char kDeviceServiceFrequency[];
+extern const char kDeviceServiceQOS[];
 extern const char kDeviceServiceDisabled[];
 
 extern const char kHardwareProfilingName[];
