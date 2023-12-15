@@ -1002,6 +1002,8 @@ const FeatureEntry::Choice kDeviceServiceChoices[] = {
     blink::switches::kDeviceServiceIPF},
     {flag_descriptions::kDeviceServiceFrequency, blink::switches::kDeviceService,
     blink::switches::kDeviceServiceFrequency},
+    {flag_descriptions::kDeviceServiceQOS, blink::switches::kDeviceService,
+    blink::switches::kDeviceServiceQOS},
     {flag_descriptions::kDeviceServiceDisabled, blink::switches::kDeviceService,
     blink::switches::kDeviceServiceDisabled},
 };
@@ -1011,6 +1013,8 @@ const FeatureEntry::Choice kDeviceServiceChoices[] = {
     {flag_descriptions::kDeviceServiceDefault, "", ""},
     {flag_descriptions::kDeviceServiceFrequency, blink::switches::kDeviceService,
     blink::switches::kDeviceServiceFrequency},
+    {flag_descriptions::kDeviceServiceQOS, blink::switches::kDeviceService,
+    blink::switches::kDeviceServiceQOS},
     {flag_descriptions::kDeviceServiceDisabled, blink::switches::kDeviceService,
     blink::switches::kDeviceServiceDisabled},
 };

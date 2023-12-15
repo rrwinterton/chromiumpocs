@@ -24,6 +24,12 @@ ThreadLoadTracker::ThreadLoadTracker(base::TimeTicks now,
       reporting_interval_(reporting_interval),
       callback_(callback) {
   next_reporting_time_ = now + reporting_interval_;
+  const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) != blink::switches::kDeviceServiceDisabled) {
+    deviceServiceFlag = true;
+  } else {
+    deviceServiceFlag = false;
+  }
 }
 
 ThreadLoadTracker::~ThreadLoadTracker() = default;
@@ -112,8 +118,8 @@ void ThreadLoadTracker::Advance(base::TimeTicks now, TaskState task_state) {
     time_ = next_current_time;
     // rrw
     float tmp_load = Load();
-    const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
-    if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) != blink::switches::kDeviceServiceDisabled) {
+    
+    if (deviceServiceFlag) {
       device_capacity_.SetCapacity(tmp_load);
       device_capacity_.GetWeightedCapacity(tmp_load);
     }

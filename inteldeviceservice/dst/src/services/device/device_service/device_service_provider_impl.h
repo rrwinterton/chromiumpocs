@@ -17,6 +17,8 @@
 #include "services/device/public/mojom/device_service_provider.mojom.h"
 #include "chrome/browser/buildflags.h"
 
+#include <windows.h>
+
 #ifdef __cplusplus 
 #define EXTERN_C extern "C"
 #endif
@@ -59,7 +61,9 @@ class DeviceServiceProviderImpl : public mojom::DeviceServiceProvider {
   // Since we are currently only performing updates at the system level, we will
   // collapse all requesting into a single set of variables.
   uint32_t last_update_;
+  uint32_t deviceServiceFlag;
   mojom::Capacity last_capacity_;
+  bool isEco = false;
 
   std::unique_ptr<DeviceServicePlatformProvider> platform_provider_;
   mojo::ReceiverSet<mojom::DeviceServiceProvider> receivers_;

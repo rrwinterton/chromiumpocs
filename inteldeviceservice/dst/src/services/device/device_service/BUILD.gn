@@ -26,7 +26,6 @@ source_set("device_service") {
     libs = [
       "ipf/ipf_control.lib",
       "ipf/ipfcorelib.lib",
-      "ipf/CustomPOC_ETW.lib",
     ]
   }
   sources += [

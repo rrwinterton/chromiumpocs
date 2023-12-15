@@ -47,7 +47,6 @@ frequencyLimiter::frequencyLimiter()
   {
     SetCoreMaxFrequency(ECORE, 0, 0);
   }
-
 }
 
 // frequencyLimiter class destructor

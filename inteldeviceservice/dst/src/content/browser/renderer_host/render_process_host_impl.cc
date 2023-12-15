@@ -3429,6 +3429,7 @@ void RenderProcessHostImpl::PropagateBrowserCommandLineToRenderer(
     blink::switches::kDeviceServiceDisabled,
     blink::switches::kDeviceServiceFrequency,
     blink::switches::kDeviceServiceIPF,
+    blink::switches::kDeviceServiceQOS,
     blink::switches::kDisableImageAnimationResync,
     blink::switches::kDisableLowResTiling,
     blink::switches::kDisablePreferCompositingToLCDText,

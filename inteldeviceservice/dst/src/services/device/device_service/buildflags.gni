@@ -3,5 +3,5 @@ declare_args() {
 }
 
 declare_args() {
-  enable_logging = true
+  enable_logging = false
 }

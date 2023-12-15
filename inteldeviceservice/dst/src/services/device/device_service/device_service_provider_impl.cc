@@ -4,8 +4,6 @@
 
 #include "services/device/device_service/device_service_provider_impl.h"
 
-#include <windows.h>
-
 #include "base/bind.h"
 #include "base/command_line.h"
 #include "mojo/public/cpp/bindings/remote_set.h"
@@ -15,6 +13,33 @@
 
 frequencyLimiter FrequencyLimiter;
 
+void setEcoQos(uint32_t pid) {
+    HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+    PROCESS_POWER_THROTTLING_STATE PowerThrottling;
+    RtlZeroMemory(&PowerThrottling, sizeof(PowerThrottling));
+    PowerThrottling.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION;
+    PowerThrottling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+    PowerThrottling.StateMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+    SetProcessInformation(phandle, 
+                        ProcessPowerThrottling, 
+                        &PowerThrottling,
+                        sizeof(PowerThrottling));
+    CloseHandle(phandle);
+}
+
+void setHighQos(uint32_t pid) {
+    HANDLE phandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+    PROCESS_POWER_THROTTLING_STATE PowerThrottling;
+    RtlZeroMemory(&PowerThrottling, sizeof(PowerThrottling));
+    PowerThrottling.Version = PROCESS_POWER_THROTTLING_CURRENT_VERSION;
+    PowerThrottling.ControlMask = PROCESS_POWER_THROTTLING_EXECUTION_SPEED;
+    PowerThrottling.StateMask = 0;
+    SetProcessInformation(phandle, 
+                        ProcessPowerThrottling, 
+                        &PowerThrottling,
+                        sizeof(PowerThrottling));
+    CloseHandle(phandle);
+}
 namespace device {
 
 constexpr uint32_t kUpdateIntervalMS = 50;
@@ -30,6 +55,17 @@ DeviceServiceProviderImpl::DeviceServiceProviderImpl(
   receivers_.set_disconnect_handler(
       base::BindRepeating(&DeviceServiceProviderImpl::OnReceiverConnectionError,
                           weak_ptr_factory_.GetWeakPtr()));
+  const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
+  if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency)
+      deviceServiceFlag = 1;
+  else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceQOS)
+      deviceServiceFlag = 3;
+  #if BUILDFLAG(ENABLE_IPF)
+  else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+      deviceServiceFlag = 2;
+  #endif
+  else
+      deviceServiceFlag = 0;
 }
 
 DeviceServiceProviderImpl::~DeviceServiceProviderImpl() = default;
@@ -58,7 +94,7 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
 
     return;
   }
-
+  
   if (capacity > last_capacity_) {
     last_capacity_ = capacity;
   }
@@ -69,7 +105,6 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
     const char* enum_name = "";
     #endif
 
-    const base::CommandLine* command_line = base::CommandLine::ForCurrentProcess();
     switch (last_capacity_) {
       case mojom::Capacity::kCapacityOver:
 
@@ -78,12 +113,19 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "OVER";
         #endif
 
-        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-          FrequencyLimiter.GearUp(100); //rrw
+        if (deviceServiceFlag == 1) {
+          FrequencyLimiter.GearUp(100);
+        }
+
+        else if (deviceServiceFlag == 3) {
+          if (isEco) {
+            setHighQos(process_id);
+            isEco = false;
+          }
         }
 
         #if BUILDFLAG(ENABLE_IPF)
-        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+        else if (deviceServiceFlag == 2)
           GearUp();
         #endif
 
@@ -95,11 +137,8 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "MEET";
         #endif
 
-        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-        }
-
         #if BUILDFLAG(ENABLE_IPF)
-        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+        else if (deviceServiceFlag == 2)
         #endif
         
 
@@ -111,12 +150,19 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
           enum_name = "UNDER";
         #endif
 
-        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-          FrequencyLimiter.GearDown(10); //rrw
+        if (deviceServiceFlag == 1) {
+          FrequencyLimiter.GearDown(10);
+        }
+
+        else if (deviceServiceFlag == 3) {
+          if (!isEco){
+            setEcoQos(process_id);
+            isEco = true;
+          }
         }
 
         #if BUILDFLAG(ENABLE_IPF)
-        else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+        else if (deviceServiceFlag == 2)
           GearDown();
         #endif
         
@@ -130,12 +176,19 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
         enum_name = "IDLE";
         #endif
 
-        if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceFrequency) {
-          FrequencyLimiter.GearDown(10); //rrw
+        if (deviceServiceFlag == 1) {
+          FrequencyLimiter.GearDown(10);
+        }
+
+        else if (deviceServiceFlag == 3) {
+          if (isEco) {
+            setEcoQos(process_id);
+            isEco = true;
+          }
         }
 
         #if BUILDFLAG(ENABLE_IPF)
-          else if (command_line->GetSwitchValueASCII(blink::switches::kDeviceService) == blink::switches::kDeviceServiceIPF)
+          else if (deviceServiceFlag == 2)
             GearDown();
         #endif
 
@@ -147,7 +200,7 @@ void DeviceServiceProviderImpl::SubmitTaskCapacityHint(
     }
 
     #if BUILDFLAG(ENABLE_LOGGING)
-    LOG(ERROR) << ::GetCurrentProcessId() << " time, " << system_time << " pid, " << process_id << " tid, " << thread_id << ", " << enum_name;
+    LOG(ERROR) << ::GetCurrentProcessId() << " time, " << system_time << " pid, " << process_id << " tid, " << thread_id << ", " << enum_name << "Render process handle: " << phandle << " Browser process handle: " << GetCurrentProcess();
     #endif
 
     last_update_ = system_time;

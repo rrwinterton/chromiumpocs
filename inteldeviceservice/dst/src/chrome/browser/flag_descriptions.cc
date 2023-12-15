@@ -730,6 +730,7 @@ const char kDeviceServiceDescription[] =
 const char kDeviceServiceDefault[] = "Enabled";
 const char kDeviceServiceIPF[] = "IPF";
 const char kDeviceServiceFrequency[] = "Frequency";
+const char kDeviceServiceQOS[] = "qos";
 const char kDeviceServiceDisabled[] = "Disabled";
 
 const char kHardwareProfilingName[] = "Hardware Profiling";
